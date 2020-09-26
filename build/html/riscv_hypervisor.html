@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.1 Privilege Modes &mdash; riscv-hv-japanese  ドキュメント</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="Welcome to riscv-hv-japanese&#39;s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> riscv-hv-japanese
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5.1 Privilege Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hypervisor-status-register-hstatus">5.2.1 Hypervisor Status Register (hstatus)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hypervisor-trap-delegation-registers-hedeleg-and-hideleg">5.2.2 Hypervisor Trap Delegation Registers (hedeleg and hideleg)</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">riscv-hv-japanese</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>5.1 Privilege Modes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/riscv_hypervisor.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p>警告！このドラフト仕様は、RISC-V
+Foundatitonに承認される前に変更される可能性がある。</p>
+<p>本節では、スーパーバイザーレベルのアーキテクチャを仮想化して効率的にType-1とType-2のゲストオペレーティングシステムのホスティングを支援するためのハイパーバイザー機能について説明する。</p>
+<p>ハイパーバイザー拡張により、スーパーバイザーモードは「ハイパーバイザー拡張スーパーバイザーモード(HSモードもしくは省略してハイパーバイザーモード)
+」に変更され、ハイパーバイザーもしくはホスティングに対応したオペレーティングシステムが動作する。ハイパーバイザー拡張はアドレス変換にステージを1つ追加し、「ゲスト物理アドレス」から「スーパバイザ―物理アドレス」への変換を行い、メモリとメモリマップドI/Oのサブシステムをゲストオペレーティングシステムに仮想化する。HSモードはSモードと同様に動作するが、アドレス変換の新たなステージと、仮想Sモード(VSモード)内でゲストOSのホスティングをサポートするための新たな命令とCSRが追加される。通常のSモードのオペレーティングシステムは変更することなくHSモードとVSモードのゲストとして実行する。</p>
+<p>HSモードでは、OSまたはハイパーバイザーは、OSが通常Sモードから行うのと同じSBIを介してマシンと対話する。HSモードのハイパーバイザーは、そのVSモードのゲストにSBIを実装することが期待されている。</p>
+<p>ハイパーバイザー拡張機能は、文字Hに対応するmisa
+CSRのビット7を設定することで有効になる。misa[7]がクリアされている場合、Hartはこの拡張機能が実装されていないかのように動作し、ハイパーバイザーCSRまたは命令を使用しようとすると、
+不正な命令例外。
+ハイパーバイザー拡張を含む実装は、その拡張を無効化するために<code class="docutils literal notranslate"><span class="pre">misa[7]</span></code>をハードワイヤにしないことが推奨されている。</p>
+<blockquote>
+<div><p>ベースライン特権アーキテクチャは、少数の特権命令を簡単に検出してトラップできるため、ゲストOSがユーザーレベルで実行される従来の仮想化技術の使用を簡素化するように設計されている。
+ハイパーバイザー拡張機能は、これらのトラップの頻度を減らすことにより、仮想化パフォーマンスを向上させる。</p>
+</div></blockquote>
+<blockquote>
+<div><p>ハイパーバイザー拡張機能は、ハイパーバイザーをSモードで実行し、MモードにトラップしてハイパーバイザーCSRアクセスをシャドウイングし、シャドウページテーブルを維持することにより、拡張機能を実装しないプラットフォームで効率的にエミュレートできるように設計されている。
+Type-2ハイパーバイザーのCSRアクセスの大部分は有効なSモードアクセスであるため、トラップする必要はない。
+ハイパーバイザーは、同様にネストされた仮想化をサポートする。</p>
+</div></blockquote>
+<div class="section" id="privilege-modes">
+<h1>5.1 Privilege Modes<a class="headerlink" href="#privilege-modes" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Vで示される現在の仮想化モードは、Hartが現在ゲストで実行されているかどうかを示す。V=1の場合、Hartは仮想Sモード(VSモード)、またはVSモードで実行されているゲストOSの仮想Uモード(VUモード)のいずれかにある。
+V=0の場合、HartはMモード、HSモード、またはHSモードで実行されているOSの下のUモードのいずれかになる。
+仮想化モードは、2レベルのアドレス変換がアクティブ(V=1)か非アクティブ(V=0)かを示す。
+表5.1は、ハイパーバイザー拡張機能を備えたRISC-V
+Hartの可能な動作モードを示している。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 16%" />
+<col style="width: 22%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>仮想
+化モード(V)</p></th>
+<th class="head"><p>特権エン
+コーディング</p></th>
+<th class="head"><p>略称</p></th>
+<th class="head"><p>名前</p></th>
+<th class="head"><p>2段階変換</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>Uモード</p></td>
+<td><p>ユーザモード</p></td>
+<td><p>Off</p></td>
+</tr>
+<tr class="row-odd"><td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>HSモード</p></td>
+<td><p>ハイパ
+ーバイザ拡張
+スーパ
+バイザモード</p></td>
+<td><p>Off</p></td>
+</tr>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>3</p></td>
+<td><p>Mモード</p></td>
+<td><p>マシンモード</p></td>
+<td><p>Off</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>VUモード</p></td>
+<td><p>仮想
+ユーザモード</p></td>
+<td><p>On</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>VSモード</p></td>
+<td><p>仮想スーパ
+バイザモード</p></td>
+<td><p>On</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hypervisor-and-virtual-supervisor-csrs">
+<h1>5.2 Hypervisor and Virtual Supervisor CSRs<a class="headerlink" href="#hypervisor-and-virtual-supervisor-csrs" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>HSモードで実行されているOSまたはハイパーバイザーは、スーパーバイザCSRを使用して、例外、割り込み、およびアドレス変換サブシステムと対話する。
+HSモードには追加のCSRが提供されるが、VSモードには提供されない。HSモードのCSRは2ステージのアドレス変換を管理し、VSモードゲストの動作を制御するために以下のレジスタが追加される：<code class="docutils literal notranslate"><span class="pre">hstatus</span></code>、<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>、<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>、<code class="docutils literal notranslate"><span class="pre">hvip</span></code>、<code class="docutils literal notranslate"><span class="pre">hip</span></code>、<code class="docutils literal notranslate"><span class="pre">hie</span></code>、<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>、<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>
+、<code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>、<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>、<code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>、<code class="docutils literal notranslate"><span class="pre">htval</span></code>、<code class="docutils literal notranslate"><span class="pre">htinst</span></code>、および<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>。</p>
+<p>さらに、いくつかの仮想スーパーバイザCSR(VS
+CSR)は、通常のスーパーバイザCSRのレプリカである。たとえば、<code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>は、通常の<code class="docutils literal notranslate"><span class="pre">sstatus</span></code>
+CSRを複製するVS CSRである。</p>
+<p>V = 1の場合、VS
+CSRは対応するスーパーバイザCSRの代わりになり、特に指定のない限り、通常のスーパーバイザCSRのすべての機能を引き継ぐ。通常、スーパーバイザCSRを読み取るか変更する命令は、対応するVS
+CSRにアクセスする。 V = 1の場合、VS
+CSRを独自の個別のCSRアドレスで直接読み書きしようとすると、仮想命令例外が発生する。
+(Uモードからの試行は、通常どおり、不正な命令例外を引き起こす。)VS
+CSRは、MモードまたはHSモードからのみ、それ自体としてアクセスする。</p>
+<p>V = 1の間、VS
+CSRに置き換えられた通常のHSレベルのスーパーバイザCSRはその値を保持するが、特に文書化されていない限り、マシンの動作には影響しません。逆に、V
+= 0の場合、VS
+CSRは通常、CSR命令によって読み取りと書き込みができること以外は、マシンの動作に影響を与えません。</p>
+<p>いくつかの標準スーパーバイザCSR(<code class="docutils literal notranslate"><span class="pre">scounteren</span></code>、およびN拡張が実装されている場合、<code class="docutils literal notranslate"><span class="pre">sedeleg</span></code>および<code class="docutils literal notranslate"><span class="pre">sideleg</span></code>)には、一致するVS
+CSRがない。これらのスーパーバイザCSRは、VSモードとVUモードがHSモードとUモードに置き換わる場合を除いて、V
+=
+1の場合でも通常の機能とアクセス可能性を維持する。ハイパーバイザーソフトウェアは、必要に応じてこれらのレジスターの内容を手動でスワップする必要がある。</p>
+<blockquote>
+<div><p>一致するVS
+CSRは、複製する必要があるスーパーバイザCSRにのみ存在する。これらは主に、トラップによって自動的に書き込まれるもの、またはトラップエントリの直後やSRETの直前に命令の実行に影響を与えるもので、ソフトウェアのみでCSRをスワップできない場合に使用される。
+まさに適切な瞬間。
+現在、ほとんどのスーパーバイザCSRはこのカテゴリに分類されるが、将来のCSRは分類されない可能性がある。</p>
+</div></blockquote>
+<p>この章では、<code class="docutils literal notranslate"><span class="pre">HSXLEN</span></code>という用語を使用してHSモードで実行するときの有効なXLENを指し、<code class="docutils literal notranslate"><span class="pre">VSXLEN</span></code>を使用してVSモードで実行するときの有効なXLENを指する。</p>
+<div class="section" id="hypervisor-status-register-hstatus">
+<h2>5.2.1 Hypervisor Status Register (hstatus)<a class="headerlink" href="#hypervisor-status-register-hstatus" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hstatus</span></code>レジスタは、HSXLEN = 32の場合はFigure 5.1に、HSXLEN =
+64の場合はFigure
+5.2に示すようにフォーマットされたHSXLENビットの読み取り/書き込みレジスタである。
+<code class="docutils literal notranslate"><span class="pre">hstatus</span></code>レジスタは、VSモードゲストの例外動作を追跡および制御するための<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>レジスタに類似した機能を提供する。</p>
+<div class="figure align-default" id="id1">
+<img alt="image-20200926104528815" src="_images/figure51_52_hypervisor.PNG" />
+<p class="caption"><span class="caption-text">image-20200926104528815</span><a class="headerlink" href="#id1" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>VSXLフィールドは、VSモードの有効なXLEN（VSXLENとして知られている）を制御する。これは、HSモードのXLEN（HSXLEN）とは異なる場合がある。
+HSXLEN = 32の場合、VSXLフィールドは存在せず、VSXLEN = 32である。 HSXLEN
+=
+64の場合、VSXLは、16ページのFigure-3.1に示すmisaのMXLフィールドと同じようにエンコードされるWARLフィールドです。特に、実装により、VSXLを読み取り専用フィールドにすることができ、これによりVSXLEN
+= HSXLENを保証する。</p>
+<p>もしHSXLENが32からより大きいビット幅に変更された場合かつVSXLが複数の値を持つことができる場合、新しいHSXLENよりも大きくないサポートされている最大の値を設定することができる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hstatus</span></code>のフィールドVTSR, VTW,
+VTVMは<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>のフィールド<code class="docutils literal notranslate"><span class="pre">TSR,</span> <span class="pre">TW,</span> <span class="pre">TVM</span></code>と同じ役割を持っており、VSモードにのみ影響を与える。これは不正命令例外の代わりに仮想命令例外を発生させる。VTSR=1の場合、VSモードでSRETめいれいを実行しようとすると仮想命令例外を発生させる。VTW=1(かつmstatus.TV=0であると仮定する)の場合、VSモードでWFI命令を実行しWFIが実装によって定められるタイムリミットに到達すると仮想命令例外が発生する。VTVM=1の場合、VSモード中にSFENCE.VMAを実行するか<code class="docutils literal notranslate"><span class="pre">satp</span></code>CSRにアクセスすると仮想命令例外が発生する。</p>
+<p>VGEIN(Virtual Guest External Interrupt
+Number)フィールドはVSレベルの外部割込みに対するゲストの外部割込みソースを選択する。VGEINはWLRLフィールドであり、0からゲストの外部割込み番号(GEILEN)までの間の値を設定しなければならない。VGEIN=0の場合、VSレベルの外部割込みに対してゲストの外部割込みソースは選択されていない。GEILENが0であるならば、VGEINはハードワイヤでゼロに設定されている。ゲストの割り込みについては5.2.4層で説明しており、VGEINについては5.2.3章でより詳細に説明している。</p>
+<p>HUフィールド(Hypervisor User
+mode)では仮想マシンのロードストア命令を制御している。HLV, HLVX,
+HSVもUモードで使用することができる。HU=1の時、これらの命令はUモード上でHSモードと同様に実行される。HU=0のとき、Uモード中でのすべてのハイパーバイザー命令は不正命令例外を発生させる。</p>
+<blockquote>
+<div><p>HUビットを使用することで、ハイパーバイザーの一部をUモードで実行して、仮想マシンのメモリアクセスを維持しながらソフトウェアのバグに対する保護を強化することができる。</p>
+</div></blockquote>
+<p>SPVビット(Supervisor Previous Virtualization
+mode)はトラップがHSモードによって捕らえられた場合に、実装によって書き込まれるビットである。<code class="docutils literal notranslate"><span class="pre">sstatus</span></code>のSPPビットと同様に、トラップ発生時の特権モードが設定され、<code class="docutils literal notranslate"><span class="pre">hstatus</span></code>のSPVビットはトラップが発生すると仮想モードVの値が設定される。V=0の時にSRET命令が実行されると、SPVにはVが設定される。</p>
+<p>V=1の時にトラップによりHSモードによって捕らえられた場合、SPVP(Supervisor
+Previous Virtual
+Privilege)ビットに、トラップ発生時の特権モードの情報が設定される。これは<code class="docutils literal notranslate"><span class="pre">sstatus.SPP</span></code>と同様である。しかしトラップ前にV=0だった場合、SPVPはトラップのエントリで値は変更されていない。SPVPは仮想マシンロードストア命令であるHLV,
+HLVX, HSVによって発生する明確なメモリアクセスの特権の影響を制御する。</p>
+<blockquote>
+<div><p>SPVPを使わない場合、もしHLV, HLVX,
+HSV命令がメモリアクセスの特権モード影響を確認するために代わりに<code class="docutils literal notranslate"><span class="pre">sstatus.SPP</span></code>を使用することになる。この場合、HU=1であったとしてもUモードでもVSレベル仮想マシンメモリにアクセスできなくなる。なぜなら、Uモードに入るためのSRET命令は常にSPP=0に設定するからである。SPPとは異なり、SPVPはHSモードとUモードの行き来については関与しない。</p>
+</div></blockquote>
+<p>GVAフィールド(Guest Virtual
+Address)はHSモードでトラップが捕らえられた場合に実装によって書き込まれる。ゲストの仮想アドレスを<code class="docutils literal notranslate"><span class="pre">stval</span></code>に書き込むような任意のトラップ(アクセスフォルト、ページフォルト、ゲストページフォルト)の場合、GVAは1が設定される。HSモードにトラップされるそれ以外のトラップについては、GVAは0に設定される。</p>
+<blockquote>
+<div><p>メモリフォルトでは、GVAはHLV,HLVX,
+HSV命令によるフォルト発生時を除いてSPVと冗長である。このような場合には、SPV=0に設定されるがGVA=1となる。</p>
+</div></blockquote>
+<p>VSBEビットはWARL属性のフィールドで、VSモードのメモリアクセスに対するエンディアンを制御する。VSBE=0の場合、VSモードで実行されるロードストアメモリあくっせうはリトルエンディアンであり、VSBE=1の場合はビッグエンディアンである。VSBEはVSレベルでの、ページテーブルなどのメモリ管理データ構造へのメモリアクセスのエンディアンも制御する。実装によっては、VSBEをリードオンリーに設定しHSモードと同じエンディアンに設定することもある。</p>
+</div>
+<div class="section" id="hypervisor-trap-delegation-registers-hedeleg-and-hideleg">
+<h2>5.2.2 Hypervisor Trap Delegation Registers (hedeleg and hideleg)<a class="headerlink" href="#hypervisor-trap-delegation-registers-hedeleg-and-hideleg" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>および<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>はHSXLENビットの読み書き可能なレジスタで、Figure-5.3およびFigure-5.4のようなフォーマットである。デフォルトでは、任意の特権レベルのトラップはMモードによって制御されるが、通常Mモードは<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>CSRを使用していくつかのトラップをHSモードに移譲する。<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>CSRはこれらのトラップをさらにVSモードのゲストに対して移譲することができる;
+これらのレジスタのレイアウトは<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>レジスタと同じである。</p>
+<div class="figure align-default" id="id2">
+<img alt="image-20200926112852129" src="_images/figure53_54_hedeleg_hideleg.PNG" />
+<p class="caption"><span class="caption-text">image-20200926112852129</span><a class="headerlink" href="#id2" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 25%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ビット</p></th>
+<th class="head"><p>属性</p></th>
+<th class="head"><p>該当する例外</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>本文を参照のこと</p></td>
+<td><p>命令アドレスミスアライン</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Writable</p></td>
+<td><p>命令アクセスフォルト</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Writable</p></td>
+<td><p>不正命令</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>Writable</p></td>
+<td><p>ブレークポイント</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>Writable</p></td>
+<td><p>ロードアドレスミスアライン</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>Writable</p></td>
+<td><p>ロードアクセスフォルト</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>Writable</p></td>
+<td><p>ストア/AMOアドレスミスアライン</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>Writable</p></td>
+<td><p>ストア/AMOアクセスフォルト</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>Writable</p></td>
+<td><p>UモードもしくはVUモードのEnvironment Call</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>Read-only 0</p></td>
+<td><p>HSモードのEnvironment Call</p></td>
+</tr>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>Read-only 0</p></td>
+<td><p>MモードのEnvironment Call</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>Writable</p></td>
+<td><p>命令ページフォルト</p></td>
+</tr>
+<tr class="row-even"><td><p>13</p></td>
+<td><p>Writable</p></td>
+<td><p>ロードページフォルト</p></td>
+</tr>
+<tr class="row-odd"><td><p>15</p></td>
+<td><p>Writable</p></td>
+<td><p>ストア/AMOページフォルト</p></td>
+</tr>
+<tr class="row-even"><td><p>20</p></td>
+<td><p>Read-only 0</p></td>
+<td><p>命令ゲストページフォルト</p></td>
+</tr>
+<tr class="row-odd"><td><p>21</p></td>
+<td><p>Read-only 0</p></td>
+<td><p>ロードゲストページフォルト</p></td>
+</tr>
+<tr class="row-even"><td><p>22</p></td>
+<td><p>Read-only 0</p></td>
+<td><p>仮想命令</p></td>
+</tr>
+<tr class="row-odd"><td><p>23</p></td>
+<td><p>Read-only 0</p></td>
+<td><p>ストア/AMOゲストページフォルト</p></td>
+</tr>
+</tbody>
+</table>
+<p>(<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>を使用して)HSモードに移譲される同期トラップは、該当する<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>ビットを設定することによって、トラップが発生する前にV=1の場合さらにVSモードに移譲される。<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>の各ビットはWritableかハードワイヤゼロに固定されている。表5.2のように、<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>の多くのビットはWritableであるか、ゼロであることが要求されている。ビット0、つまり命令アドレスミスアライン例外についてはIALIGN=32である場合にWritableとなる。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>の特定のビットが設定可能であることにより、実装のバリエーションを処理するためのハイパーバイザーの負担が軽減される。</p>
+</div></blockquote>
+<p>(<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>を使用して)HSモードに移譲される割込みは、該当する<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>ビットを設定することによってVSモードに移譲される。<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>の15:0ビットの内、10、6、２(VSレベルの標準割り込みに相当する)のみ書き込み可能であり、それ以外のビットはゼロに固定されている。</p>
+<p>仮想スーパーバイザー外部割込み(要因10)はVSモードに移譲され、自動的にマシンモードからVSモードのスーパバイザ外部割込み(要因10)に移譲される、割り込み発生時に<code class="docutils literal notranslate"><span class="pre">vscause</span></code>に要因コードも書き込まれる)。同様に、仮想スーパーバイザタイマ割り込み(要因6)はVSモードのスーパバイザ―タイマ割り込み変換され、仮想スーパバイザソフトウェア割込み(要因2)はVSモードのためのスーパーバイザソフトウェア割込み(要因1)に変換される。同様の変換はプラットフォームもしくはカスタム割り込み要因(要因16以上のもの)に応じて設定される。</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to riscv-hv-japanese&#39;s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 著作権 2020, msyksphinz
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
