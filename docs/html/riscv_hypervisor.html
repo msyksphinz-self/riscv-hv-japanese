@@ -86,8 +86,9 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">5.1 Privilege Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#hypervisor-status-register-hstatus">5.2.1 Hypervisor Status Register (hstatus)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hypervisor-trap-delegation-registers-hedeleg-and-hideleg">5.2.2 Hypervisor Trap Delegation Registers (hedeleg and hideleg)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hstatus">5.2.1 ハイパーバイザーステータスレジスタ (hstatus)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hedeleg-and-hideleg">5.2.2 ハイパーバイザートラップ譲与レジスタ (hedeleg and hideleg)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hvip-hip-and-hie">5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, and hie)</a></li>
 </ul>
 </li>
 </ul>
@@ -267,8 +268,8 @@ CSRは、複製する必要があるスーパーバイザCSRにのみ存在す�
 現在、ほとんどのスーパーバイザCSRはこのカテゴリに分類されるが、将来のCSRは分類されない可能性がある。</p>
 </div></blockquote>
 <p>この章では、<code class="docutils literal notranslate"><span class="pre">HSXLEN</span></code>という用語を使用してHSモードで実行するときの有効なXLENを指し、<code class="docutils literal notranslate"><span class="pre">VSXLEN</span></code>を使用してVSモードで実行するときの有効なXLENを指する。</p>
-<div class="section" id="hypervisor-status-register-hstatus">
-<h2>5.2.1 Hypervisor Status Register (hstatus)<a class="headerlink" href="#hypervisor-status-register-hstatus" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="hstatus">
+<h2>5.2.1 ハイパーバイザーステータスレジスタ (hstatus)<a class="headerlink" href="#hstatus" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">hstatus</span></code>レジスタは、HSXLEN = 32の場合はFigure 5.1に、HSXLEN =
 64の場合はFigure
 5.2に示すようにフォーマットされたHSXLENビットの読み取り/書き込みレジスタである。
@@ -311,8 +312,8 @@ HSV命令によるフォルト発生時を除いてSPVと冗長である。こ�
 </div></blockquote>
 <p>VSBEビットはWARL属性のフィールドで、VSモードのメモリアクセスに対するエンディアンを制御する。VSBE=0の場合、VSモードで実行されるロードストアメモリあくっせうはリトルエンディアンであり、VSBE=1の場合はビッグエンディアンである。VSBEはVSレベルでの、ページテーブルなどのメモリ管理データ構造へのメモリアクセスのエンディアンも制御する。実装によっては、VSBEをリードオンリーに設定しHSモードと同じエンディアンに設定することもある。</p>
 </div>
-<div class="section" id="hypervisor-trap-delegation-registers-hedeleg-and-hideleg">
-<h2>5.2.2 Hypervisor Trap Delegation Registers (hedeleg and hideleg)<a class="headerlink" href="#hypervisor-trap-delegation-registers-hedeleg-and-hideleg" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="hedeleg-and-hideleg">
+<h2>5.2.2 ハイパーバイザートラップ譲与レジスタ (hedeleg and hideleg)<a class="headerlink" href="#hedeleg-and-hideleg" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>および<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>はHSXLENビットの読み書き可能なレジスタで、Figure-5.3およびFigure-5.4のようなフォーマットである。デフォルトでは、任意の特権レベルのトラップはMモードによって制御されるが、通常Mモードは<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>CSRを使用していくつかのトラップをHSモードに移譲する。<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>CSRはこれらのトラップをさらにVSモードのゲストに対して移譲することができる;
 これらのレジスタのレイアウトは<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>レジスタと同じである。</p>
 <div class="figure align-default" id="id2">
@@ -412,6 +413,41 @@ HSV命令によるフォルト発生時を除いてSPVと冗長である。こ�
 </div></blockquote>
 <p>(<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>を使用して)HSモードに移譲される割込みは、該当する<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>ビットを設定することによってVSモードに移譲される。<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>の15:0ビットの内、10、6、２(VSレベルの標準割り込みに相当する)のみ書き込み可能であり、それ以外のビットはゼロに固定されている。</p>
 <p>仮想スーパーバイザー外部割込み(要因10)はVSモードに移譲され、自動的にマシンモードからVSモードのスーパバイザ外部割込み(要因10)に移譲される、割り込み発生時に<code class="docutils literal notranslate"><span class="pre">vscause</span></code>に要因コードも書き込まれる)。同様に、仮想スーパーバイザタイマ割り込み(要因6)はVSモードのスーパバイザ―タイマ割り込み変換され、仮想スーパバイザソフトウェア割込み(要因2)はVSモードのためのスーパーバイザソフトウェア割込み(要因1)に変換される。同様の変換はプラットフォームもしくはカスタム割り込み要因(要因16以上のもの)に応じて設定される。</p>
+</div>
+<div class="section" id="hvip-hip-and-hie">
+<h2>5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, and hie)<a class="headerlink" href="#hvip-hip-and-hie" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hvip</span></code>レジスタはHSXLENビットの読み書き可能なレジスタで、ハイパーバイザーがVSモードの仮想割込みのために書き込む子おtができる。<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>内の書き込み可能なビットは、<code class="docutils literal notranslate"><span class="pre">hvip</span></code>でも書き込み可能である。それ以外の<code class="docutils literal notranslate"><span class="pre">hvip</span></code>内のビットはゼロに固定されている。</p>
+<div class="figure align-default" id="id3">
+<img alt="hvip" src="_images/hvip.PNG" />
+<p class="caption"><span class="caption-text">hvip</span><a class="headerlink" href="#id3" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">hvip</span></code>の標準的なビット(ビット15から0)をFigure
+5.6に示す。<code class="docutils literal notranslate"><span class="pre">hvip</span></code>レジスタ内のVSEIPを1に設定することで、VSレベルの割り込みがアサートされる;
+VSTIPを設定することによりVSレベルのタイマ割り込みがアサートされる;
+VSSIPを設定することによりVSレベルのソフトウェア割込みがアサートされる。</p>
+<div class="figure align-default" id="id4">
+<img alt="hvip_15_0" src="_images/hvip_15_0.PNG" />
+<p class="caption"><span class="caption-text">hvip_15_0</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">hip</span></code>レジスタと<code class="docutils literal notranslate"><span class="pre">hie</span></code>レジスタはHSXLENビットの読み書き可能なレジスタでHSレベルで<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">sie</span></code>レジスタの代替レジスタである。<code class="docutils literal notranslate"><span class="pre">hip</span></code>レジスタはVSレベルとハイパーバイザー固有の割り込みのペンディング状態を示す。<code class="docutils literal notranslate"><span class="pre">hie</span></code>レジスタは<code class="docutils literal notranslate"><span class="pre">hip</span></code>と同様の割り込みに対する許可状態を示す。<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">sie</span></code>レジスタと同様に<code class="docutils literal notranslate"><span class="pre">hip</span></code>と<code class="docutils literal notranslate"><span class="pre">hie</span></code>レジスタの<code class="docutils literal notranslate"><span class="pre">i</span></code>ビット目が設定され、かつスーパーバイザーレベルの割り込みがグローバルに有効化されている場合にHSモードに割り込みが挿入される。</p>
+<p><code class="docutils literal notranslate"><span class="pre">sie</span></code>レジスタ内の書き込み可能なビットでは、同じ場所の<code class="docutils literal notranslate"><span class="pre">hip</span></code>と<code class="docutils literal notranslate"><span class="pre">hie</span></code>レジスタはゼロに固定されている。従って<code class="docutils literal notranslate"><span class="pre">sie</span></code>と<code class="docutils literal notranslate"><span class="pre">hie</span></code>のゼロでないビットの場所は常に排他的であり、これは<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">hip</span></code>についても同様である。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">hip</span></code>と<code class="docutils literal notranslate"><span class="pre">hie</span></code>の有効なビットをHSレベルの<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">sie</span></code>に配置することはできない。何故ならば、ハードウェアに実装されていないプラットフォームでハイパーバイザー拡張機能をソフトウェアがエミュレートできなくなるためである。</p>
+</div></blockquote>
+<p>もし<code class="docutils literal notranslate"><span class="pre">sie</span></code>のビット<code class="docutils literal notranslate"><span class="pre">i</span></code>がゼロに固定されているならば、<code class="docutils literal notranslate"><span class="pre">hip</span></code>の同じ場所のビットは書き込み可能か、読み込み専用である。<code class="docutils literal notranslate"><span class="pre">hip</span></code>のビット<code class="docutils literal notranslate"><span class="pre">i</span></code>が書き込み可能ならば、ペンディングしている割り込み<code class="docutils literal notranslate"><span class="pre">i</span></code>は0を書き込むことでクリアすることができる。もし割り込み<code class="docutils literal notranslate"><span class="pre">i</span></code>が<code class="docutils literal notranslate"><span class="pre">hip</span></code>の<code class="docutils literal notranslate"><span class="pre">i</span></code>ビットによりペンディング状態になり、<code class="docutils literal notranslate"><span class="pre">hip</span></code>の<code class="docutils literal notranslate"><span class="pre">i</span></code>ビットが読み込み専用である場合、<code class="docutils literal notranslate"><span class="pre">hvip</span></code>の<code class="docutils literal notranslate"><span class="pre">i</span></code>ビットをクリアすることにより割り込みをクリアするか、実装はペンディング中の割り込みをクリアするための任意の手法を提供しなければならない。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hip</span></code>中でペンディングになることができる割り込みは、<code class="docutils literal notranslate"><span class="pre">hie</span></code>中の同じ割込みに相当するビットが書き込み可能である。<code class="docutils literal notranslate"><span class="pre">hie</span></code>の書き込み不可能なビットは0に固定されている。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hip</span></code>および<code class="docutils literal notranslate"><span class="pre">hie</span></code>の標準的なビット位置(ビット15からビット0まで)はFigure
+5.9およびFigure 5.10のように構成されている。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hip.SGEIP</span></code>および<code class="docutils literal notranslate"><span class="pre">hie.SGEIE</span></code>はゲストの外部割込みをスーパバイザレベル(HSレベル)で受け付けるための割り込みペンディングビットと割り込み許可ビットである。SGEIPは<code class="docutils literal notranslate"><span class="pre">hip</span></code>内で読み込み専用で、CSRの<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>および<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>がゼロでない場合にのみ1が設定される(5.2.4節を参照のこと)。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hip.VSEIP</span></code>および<code class="docutils literal notranslate"><span class="pre">hie.VSEIE</span></code>はVSレベルの外部割込みを受け付けるための割り込みペンディングビットおよび割り込み許可ビットである。<code class="docutils literal notranslate"><span class="pre">VSEIP</span></code>は読み込み専用ビットで、以下の割込みソースの論理和が設定される。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hvip</span></code>の<code class="docutils literal notranslate"><span class="pre">VSEIP</span></code>ビット</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hstatus.VGEIN</span></code>によって選択された<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>のビット</p></li>
+<li><p>VSレベルに接続されるその他の任意のプラットフォーム固有外部割込みビット</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">hip.VSTIP</span></code>および<code class="docutils literal notranslate"><span class="pre">hie.VSTIE</span></code>はVSレベルタイマー割り込みの割り込みペンディングビットおよび割り込み許可ビットである。<code class="docutils literal notranslate"><span class="pre">VSETIP</span></code>は<code class="docutils literal notranslate"><span class="pre">hip</span></code>の読み込み専用ビットで、<code class="docutils literal notranslate"><span class="pre">hvip.STIP</span></code>およびVSレベルに接続される他のプラットフォーム固有のタイマー割り込みシグナルの論理和が接続される。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hip.VSSIP</span></code>および<code class="docutils literal notranslate"><span class="pre">hie.VSSIE</span></code>はVSレベルソフトウェア割込みの割り込みペンディングビットおよび割り込み許可ビットである。<code class="docutils literal notranslate"><span class="pre">hip</span></code>の<code class="docutils literal notranslate"><span class="pre">VSSIP</span></code>ビットは<code class="docutils literal notranslate"><span class="pre">hvip</span></code>の同じビットのエイリアスである(書き込み可能)。</p>
+<p>HSモードに複数の割り込みが同時に到達した場合、以下の降順の優先度により割り込み処理が行われる：<code class="docutils literal notranslate"><span class="pre">SEI,</span> <span class="pre">SSI,</span> <span class="pre">STI,</span> <span class="pre">SGEI,</span> <span class="pre">VSEI,</span> <span class="pre">VSSI,</span> <span class="pre">VSTI</span></code>。</p>
 </div>
 </div>
 
