@@ -36,7 +36,9 @@
 
     
     <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="検索" href="search.html" /> 
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="5.5 2ステージアドレス変換" href="5_5_two_stage_address.html" />
+    <link rel="prev" title="5.3 ハイパーバイザー命令" href="5_3_hypervisor_instructions.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,9 +84,20 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html">5.1 Privilege Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">5.1 特権モード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html#csr">5.2 ハイパーバイザCSR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_3_hypervisor_instructions.html">5.3 ハイパーバイザー命令</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5.4 マシンレベルCSR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mstatusmstatush">5.4.1 マシンステータスレジスタ (<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>と<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mideleg">5.4.2 マシン割り込み移譲レジスタ (<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mip-mie">5.4.3 マシン割り込みレジスタ (<code class="docutils literal notranslate"><span class="pre">mip</span></code>, <code class="docutils literal notranslate"><span class="pre">mie</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mtval2">5.4.4 マシン第2トラップ値レジスタ (<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mtinst">5.4.5 マシントラップ命令レジスタ (<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="5_5_two_stage_address.html">5.5 2ステージアドレス変換</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_6_trap.html">5.6 例外</a></li>
 </ul>
 
             
@@ -302,6 +315,15 @@ P</p></th>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="5_5_two_stage_address.html" class="btn btn-neutral float-right" title="5.5 2ステージアドレス変換" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="5_3_hypervisor_instructions.html" class="btn btn-neutral float-left" title="5.3 ハイパーバイザー命令" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

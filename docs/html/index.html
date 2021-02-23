@@ -37,7 +37,7 @@
     
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="第5章：ハイパーバイザー拡張, Version 0.6.1" href="5_1_hypervisor_extension.html" /> 
+    <link rel="next" title="5.1 特権モード" href="5_1_hypervisor_extension.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,7 +84,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">第5章：ハイパーバイザー拡張, Version 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">5.1 特権モード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html#csr">5.2 ハイパーバイザCSR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="5_3_hypervisor_instructions.html">5.3 ハイパーバイザー命令</a></li>
 <li class="toctree-l1"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html">5.4 マシンレベルCSR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="5_5_two_stage_address.html">5.5 2ステージアドレス変換</a></li>
@@ -160,9 +161,25 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">第5章：ハイパーバイザー拡張, Version 0.6.1</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#id1">5.1 特権モード</a></li>
-<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#csr">5.2 ハイパーバイザCSR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">5.1 特権モード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html#csr">5.2 ハイパーバイザCSR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#hstatus">5.2.1 ハイパーバイザーステータスレジスタ (hstatus)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#trap-hedeleg-hideleg">5.2.2 ハイパーバイザーTrap移譲レジスタ (hedeleg / hideleg)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#hvip-hip-hie">5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, hie)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#hgeiphgeie">5.2.4 ハイパーバイザーゲスト外部割込みレジスタ (<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>および<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#hcounteren">5.2.5 ハイパーバイザーカウンタ許可レジスタ (<code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#htimedelta-htimedeltah">ハイパーバイザータイムデルタレジスタ (<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>, <code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#htval">5.2.7 ハイパーバイザートラップ値レジスタ(<code class="docutils literal notranslate"><span class="pre">htval</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#htinst">5.2.8 ハイパーバイザ―トラップ命令レジスタ (<code class="docutils literal notranslate"><span class="pre">htinst</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#hgatp">5.2.9 ハイパーバイザーゲストアドレス変換および保護レジスタ (<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vsstatus">5.2.10 仮想スーパーバイザーステータスレジスタ (<code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vsip-vsie">5.2.11 仮想スーパーバイザー割り込みレジスタ (<code class="docutils literal notranslate"><span class="pre">vsip</span></code>, <code class="docutils literal notranslate"><span class="pre">vsie</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vstvec">5.2.12 仮想スーパーバイザートラップベクタベースアドレスレジスタ (<code class="docutils literal notranslate"><span class="pre">vstvec</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vsscratch">5.2.13 仮想スーパーバイザースクラッチレジスタ (<code class="docutils literal notranslate"><span class="pre">vsscratch</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vsepc">5.2.14 仮想スーパーバイザー例外プログラムカウンタ (<code class="docutils literal notranslate"><span class="pre">vsepc</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vscause">5.2.15 仮想スーパーバイザー要因レジスタ (<code class="docutils literal notranslate"><span class="pre">vscause</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vstval">5.2.16 仮想スーパーバイザートラップ値レジスタ (<code class="docutils literal notranslate"><span class="pre">vstval</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#vsatp">5.2.17 仮想スーパーバイザーアドレス変換および保護レジスタ (<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="5_3_hypervisor_instructions.html">5.3 ハイパーバイザー命令</a><ul>
@@ -211,7 +228,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="5_1_hypervisor_extension.html" class="btn btn-neutral float-right" title="第5章：ハイパーバイザー拡張, Version 0.6.1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="5_1_hypervisor_extension.html" class="btn btn-neutral float-right" title="5.1 特権モード" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>

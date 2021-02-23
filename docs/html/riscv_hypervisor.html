@@ -36,8 +36,7 @@
 
     
     <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="検索" href="search.html" />
-    <link rel="prev" title="Welcome to riscv-hv-japanese&#39;s documentation!" href="index.html" /> 
+    <link rel="search" title="検索" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -83,19 +82,13 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">5.1 Privilege Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#hstatus">5.2.1 ハイパーバイザーステータスレジスタ (hstatus)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hedeleg-and-hideleg">5.2.2 ハイパーバイザートラップ譲与レジスタ (hedeleg and hideleg)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hvip-hip-and-hie">5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, and hie)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hgeip-hgeie">ハイパーバイザーゲスト外部割込みレジスタ(hgeip, hgeie)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hcounteren">ハイパーバイザーカウンタ有効レジスタ(hcounteren)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#htimedelta-htimedeltah">ハイパーバイザータイムデルタレジスタ(<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>, <code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#htval">ハイパーバイザートラップ値レジスタ(htval)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#htinst">ハイパーバイザートラップ命令レジスタ(htinst)</a></li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">5.1 特権モード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html#csr">5.2 ハイパーバイザCSR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_3_hypervisor_instructions.html">5.3 ハイパーバイザー命令</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html">5.4 マシンレベルCSR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_5_two_stage_address.html">5.5 2ステージアドレス変換</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_6_trap.html">5.6 例外</a></li>
 </ul>
 
             
@@ -558,13 +551,6 @@ RV32の場合、ハイパーバイザー拡張機能は34ビットまでのゲ�
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to riscv-hv-japanese&#39;s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
