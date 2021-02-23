@@ -107,8 +107,8 @@ Vが設定される条件
 
    -  .. code:: cpp
 
-             if (state.prv == PRV_M)
-               return;
+           if (state.prv == PRV_M)
+             return;
 
    -  ``MRET``/``SRET``\ が実行された場合：最初に\ ``set_priviledge()``\ により動作モードが設定される。Mモードに遷移された場合は仮想モードに遷移しない
 
@@ -122,33 +122,33 @@ Vが設定される条件
 
       -  .. code:: cpp
 
-              // VSSTATUS.FSがInitialではない：つま仮想化モードにてFPUを実行済みの場合かつ
-              // MSTATUS.FSがDirtyの場合：VSSTATUS.FSもDirtyにしてしまう？
-                    if ((state.vsstatus & SSTATUS_FS) &&
-                        ((state.mstatus & SSTATUS_FS) == SSTATUS_FS)) {
-                      state.vsstatus |= SSTATUS_FS;
-                    }
-                    if (supports_extension('V') &&
-                        (state.vsstatus & SSTATUS_VS) &&
-                        ((state.mstatus & SSTATUS_VS) == SSTATUS_VS)) {
-                      state.vsstatus |= SSTATUS_VS;
-                    }
-                    if ((state.vsstatus & SSTATUS_XS) &&
-                        ((state.mstatus & SSTATUS_XS) == SSTATUS_XS)) {
-                      state.vsstatus |= SSTATUS_XS;
-                    }
+            // VSSTATUS.FSがInitialではない：つま仮想化モードにてFPUを実行済みの場合かつ
+            // MSTATUS.FSがDirtyの場合：VSSTATUS.FSもDirtyにしてしまう？
+                  if ((state.vsstatus & SSTATUS_FS) &&
+                      ((state.mstatus & SSTATUS_FS) == SSTATUS_FS)) {
+                    state.vsstatus |= SSTATUS_FS;
+                  }
+                  if (supports_extension('V') &&
+                      (state.vsstatus & SSTATUS_VS) &&
+                      ((state.mstatus & SSTATUS_VS) == SSTATUS_VS)) {
+                    state.vsstatus |= SSTATUS_VS;
+                  }
+                  if ((state.vsstatus & SSTATUS_XS) &&
+                      ((state.mstatus & SSTATUS_XS) == SSTATUS_XS)) {
+                    state.vsstatus |= SSTATUS_XS;
+                  }
 
       -  SDビットも設定する
 
       -  .. code:: cpp
 
-                    /* Update SD bit of Host */
-                    state.vsstatus &= (xlen == 64 ? ~SSTATUS64_SD : ~SSTATUS32_SD);
-                    if (((state.mstatus & SSTATUS_FS) == SSTATUS_FS) ||
-                        ((state.vsstatus & SSTATUS_VS) == SSTATUS_VS) ||
-                        ((state.vsstatus & SSTATUS_XS) == SSTATUS_XS)) {
-                       state.vsstatus |= (xlen == 64 ? SSTATUS64_SD : SSTATUS32_SD);
-                    }
+                  /* Update SD bit of Host */
+                  state.vsstatus &= (xlen == 64 ? ~SSTATUS64_SD : ~SSTATUS32_SD);
+                  if (((state.mstatus & SSTATUS_FS) == SSTATUS_FS) ||
+                      ((state.vsstatus & SSTATUS_VS) == SSTATUS_VS) ||
+                      ((state.vsstatus & SSTATUS_XS) == SSTATUS_XS)) {
+                     state.vsstatus |= (xlen == 64 ? SSTATUS64_SD : SSTATUS32_SD);
+                  }
 
 -  最後にMSTATUSとVSSTATUSを設定する。この辺のマスクはどういう設定なんだ？
 
