@@ -154,7 +154,7 @@ MモードもしくはHSモードに移行するすべての命令は、自動�
 | ストア/AMOページフォルト        | Yes    | Yes                | Yes        | No         |
 | 命令ゲストページフォルト        | Yes    | No                 | No         | Yes        |
 | ロードゲストページフォルト      | Yes    | Yes                | Yes        | Yes        |
-| ストア/AMOゲストページふぉるtお | Yes    | Yes                | Yes        | Yes        |
+| ストア/AMOゲストページフォルト  | Yes    | Yes                | Yes        | Yes        |
 
 - 表5.9: 例外発生時に例外命令レジスタ(`mtinst`もしくは`htinst`)に自動的に書き込まれる値
 
@@ -233,4 +233,3 @@ SRET命令はHSモードもしくはVSモードで処理された例外から復
 MモードもしくはHSモード(つまりV=0)で実行中の場合、SRETは最初にhstatus.SPVとsstatus.SPPに基づき**表5.7**に従って新しい動作モードを決定する。SRETは次にhstatus.SPVを0に設定し、sstatusのSPP=0、SIE=SPIE、SPIE=1に設定する。最後に、SRETは新しい仮想化モードと特権モードを設定し、pc=sepcとする。
 
 VSモードで実行中の場合(つまりV=1)、SRETは**表5.8**に基づいて特権モードを設定し、vstatusのSPP=0、SIE=SPIE、SPIE=1として最後にpc=vsepcとする。
-
