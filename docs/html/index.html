@@ -37,7 +37,7 @@
     
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="5.1 Privilege Modes" href="riscv_hypervisor.html" /> 
+    <link rel="next" title="第5章：ハイパーバイザー拡張, Version 0.6.1" href="5_1_hypervisor_extension.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,8 +84,11 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html">5.1 Privilege Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">第5章：ハイパーバイザー拡張, Version 0.6.1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_3_hypervisor_instructions.html">5.3 ハイパーバイザー命令</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html">5.4 マシンレベルCSR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_5_two_stage_address.html">5.5 2ステージアドレス変換</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_6_trap.html">5.6 例外</a></li>
 </ul>
 
             
@@ -156,16 +159,35 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html">5.1 Privilege Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#hstatus">5.2.1 ハイパーバイザーステータスレジスタ (hstatus)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#hedeleg-and-hideleg">5.2.2 ハイパーバイザートラップ譲与レジスタ (hedeleg and hideleg)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#hvip-hip-and-hie">5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, and hie)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#hgeip-hgeie">ハイパーバイザーゲスト外部割込みレジスタ(hgeip, hgeie)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#hcounteren">ハイパーバイザーカウンタ有効レジスタ(hcounteren)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#htimedelta-htimedeltah">ハイパーバイザータイムデルタレジスタ(<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>, <code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#htval">ハイパーバイザートラップ値レジスタ(htval)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="riscv_hypervisor.html#htinst">ハイパーバイザートラップ命令レジスタ(htinst)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_1_hypervisor_extension.html">第5章：ハイパーバイザー拡張, Version 0.6.1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#id1">5.1 特権モード</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_1_hypervisor_extension.html#csr">5.2 ハイパーバイザCSR</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="5_3_hypervisor_instructions.html">5.3 ハイパーバイザー命令</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_3_hypervisor_instructions.html#id2">5.3.1 ハイパーバイザー仮想マシンロードストア命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_3_hypervisor_instructions.html#id3">5.3.2 ハイパーバイザーメモリ管理フェンス命令</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html">5.4 マシンレベルCSR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html#mstatusmstatush">5.4.1 マシンステータスレジスタ (<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>と<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html#mideleg">5.4.2 マシン割り込み移譲レジスタ (<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html#mip-mie">5.4.3 マシン割り込みレジスタ (<code class="docutils literal notranslate"><span class="pre">mip</span></code>, <code class="docutils literal notranslate"><span class="pre">mie</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html#mtval2">5.4.4 マシン第2トラップ値レジスタ (<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_4_hypervisor_machine_mode_CSR.html#mtinst">5.4.5 マシントラップ命令レジスタ (<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="5_5_two_stage_address.html">5.5 2ステージアドレス変換</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_5_two_stage_address.html#id2">5.5.1 ゲスト物理アドレス変換</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_5_two_stage_address.html#id3">5.5.2 ゲストページフォルト</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_5_two_stage_address.html#id4">5.5.3 メモリ管理フェンス</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="5_6_trap.html">5.6 例外</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="5_6_trap.html#id2">5.6.1 例外要因コード</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_6_trap.html#id3">5.6.2 例外発生時の動作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_6_trap.html#mtinst-htinst">5.6.3 <code class="docutils literal notranslate"><span class="pre">mtinst</span></code>, <code class="docutils literal notranslate"><span class="pre">htinst</span></code>の命令変換と疑似命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_6_trap.html#id4">5.6.4 例外からの復帰</a></li>
 </ul>
 </li>
 </ul>
@@ -188,7 +210,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="riscv_hypervisor.html" class="btn btn-neutral float-right" title="5.1 Privilege Modes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="5_1_hypervisor_extension.html" class="btn btn-neutral float-right" title="第5章：ハイパーバイザー拡張, Version 0.6.1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
