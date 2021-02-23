@@ -3,8 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to riscv-hv-japanese's documentation!
-=============================================
+第5章：RISC-V ハイパーバイザー拡張, Version 0.6.1
+=================================================
+
+The RISC-V Instruction Set Manual Volume II: Privileged Architecture November 6, 2020 の第5章「ハイパーバイザー拡張」を日本語化したものです。
 
 .. toctree::
    :maxdepth: 2
