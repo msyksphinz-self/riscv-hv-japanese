@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.4 マシンレベルCSR &mdash; riscv-hv-japanese  ドキュメント</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> riscv-hv-japanese
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html">5.1 Privilege Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">riscv-hv-japanese</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>5.4 マシンレベルCSR</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/5_4_hypervisor_machine_mode_CSR.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="csr">
+<h1>5.4 マシンレベルCSR<a class="headerlink" href="#csr" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>ハイパーバイザー拡張により、マシンレベルCSRである<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>, <code class="docutils literal notranslate"><span class="pre">mideleg</span></code>, <code class="docutils literal notranslate"><span class="pre">mip</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mie</span></code>に対して修正が行われ、さらに<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>と<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>
+CSRが追加される。</p>
+<div class="section" id="mstatusmstatush">
+<h2>5.4.1 マシンステータスレジスタ (<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>と<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>)<a class="headerlink" href="#mstatusmstatush" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ハイパーバイザー拡張により、マシンレベルの<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>と<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>
+CSRレジスタに対して<code class="docutils literal notranslate"><span class="pre">MPV</span></code>と<code class="docutils literal notranslate"><span class="pre">GVA</span></code>フィールドが追加される。この修正により既存のフィールドに対しても修正が行われる。<strong>図5.33</strong>はハイパーバイザー拡張が適用された場合のMXLEN=64時の<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>レジスタのビットフィールドを示す。MXLEN=32の場合には、ハイパーバイザー拡張の<code class="docutils literal notranslate"><span class="pre">MPV</span></code>と<code class="docutils literal notranslate"><span class="pre">GVA</span></code>フィールドは<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>ではなく<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>レジスタに追加される。このレジスタフィールドはハイパーバイザー拡張時には必ず実装しなければならない。<strong>図5.34</strong>はMXLEN=32時に実装された<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>レジスタのハイパーバイザー拡張を示す。</p>
+<p><code class="docutils literal notranslate"><span class="pre">MPV</span></code>ビット(Machine Previous VIrtulization
+Mode)は実装により書き込まれるレジスタで、例外が発生したことによりMモードに遷移した場合に書き込まれる。MPPビットのようにトラップが発生した際の以前のモードが書き込まれ、MPVビットにはトラップ発生時の仮想モードVの値が書き込まれる。MRET命令が実行された場合、MPP=3の場合を除き仮想モードVはMPVに格納されている値に設定される。MPP=3の場合には、Vは0が維持される。</p>
+<div class="figure align-default" id="id1">
+<img alt="図5.33:ハイパーバイザー拡張が実装されている場合のマシンステータスレジスタ(mstatus)" src="_images/hypervisor_mstatus.PNG" />
+<p class="caption"><span class="caption-text">図5.33:ハイパーバイザー拡張が実装されている場合のマシンステータスレジスタ(mstatus)</span><a class="headerlink" href="#id1" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<div class="figure align-default" id="id2">
+<img alt="RV32時のハイパーバイザー拡張が実装されている場合のマシンステータスレジスタ(mstatus)" src="_images/rv32_mstatus.PNG" />
+<p class="caption"><span class="caption-text">RV32時のハイパーバイザー拡張が実装されている場合のマシンステータスレジスタ(mstatus)</span><a class="headerlink" href="#id2" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>GVA(Guest Virtual
+Address)フィールドは実装により書き込まれるビットで、トラップが発生してMモードに移行する場合に書き込まれる。<code class="docutils literal notranslate"><span class="pre">mtval</span></code>への書き込みが発生する任意のトラップ(アクセスフォルト、ページフォルト、ゲストページフォルト)の場合にGVAに1が背程される。Mモードに移行するそれ以外のトラップでは、GVAは0が設定される。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mstatus</span></code>のTSRとTVMフィールドはHSモードでの実行時にのみ影響を与え、VSモードでは影響を与えない。TWフィールドはMモード以外のすべてのモードでの実行に影響を与える。</p>
+<p>TVM=1に設定することによりHSモードでの<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>へのアクセスもしくはHFENCE.GVMAの実行からHSモードを保護することができるが、<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>へのアクセスもしくは<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>に対しては影響を与えない。</p>
+<p>ハイパーバイザー拡張により<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>の<code class="docutils literal notranslate"><span class="pre">MPRV</span></code>(Modify
+Privilege)フィールドの動作に影響を与える。MPRV=0の場合はへアドレス変換とアドレス保護は通常通り実行される。MPRV=1の場合には、あたかも現在の仮想マシンm-小戸がMPVに設定され、現在の特権モードがMPPに設定されているように明示的なメモリアクセスに対してアドレス変換とメモリ保護が実行され、エンディアンが適用される。<strong>表5.4</strong>にこれらのケースを示す。</p>
+<p>MPRVは仮想マシンロード命令(HLV, HLVX,
+HSV)の動作に対し提供を与えない。これらの明示的なロードとストア命令は常にV=1かつ特権モードはMPRVをオーバーライドして<code class="docutils literal notranslate"><span class="pre">hstatus.SPVP</span></code>であるかのように動作する。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mstatus</span></code>レジスタはHSレベルの<code class="docutils literal notranslate"><span class="pre">sstatus</span></code>レジスタのスーパーセットであるが、<code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>のスーパーセットではない。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 87%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>M
+P
+R
+V</p></th>
+<th class="head"><p>M
+P
+V</p></th>
+<th class="head"><p>M
+P
+P</p></th>
+<th class="head"><p>影響</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>通常アクセス; 現在の特権モードと仮想モードが適用される。</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>UレベルアクセスのHSレベル変換と保護のみ適用される。</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>HSレベルアクセスのHSレベル変換と保護のみ適用される。</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>3</p></td>
+<td><p>Mレベルアクセスにより、アドレス変換は適用されない。</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>VUレベルアクセス
+により、2ステージアドレス変換と保護が適用される。HSレベル
+のMXRビットによりすべての実行ページが読み込み可能となる。
+<code class="docutils literal notranslate"><span class="pre">vsstatus.MXR</span></code>により実行可能なページに対してVS変換
+ステージにおいて読み込み可能フラグも適用されるが、ゲスト
+ー物理変換ステージにおいては読み込み可能のみ適用される。</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>VSレベルアクセスによ
+り2ステージアドレス変換と保護が適用される。HSレベルのMXR
+ビットによりすべての実行ページが読み込み可能となる。<code class="docutils literal notranslate"><span class="pre">v</span>
+<span class="pre">sstatus.MXR</span></code>により実行可能なページに対してVS変換ステー
+ジにおいて読み込み可能フラグも適用させるが、ゲストー物理
+変換ステージにおいては読み込み可能のみ適用される。HSレベ
+ルのSUMビットの代わりに<code class="docutils literal notranslate"><span class="pre">vsstatus.SUM</span></code>が適用される。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="mideleg">
+<h2>5.4.2 マシン割り込み移譲レジスタ (<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>)<a class="headerlink" href="#mideleg" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ハイパーバイザー拡張が実装されると、<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>のビット10、ビット6、ビット2(標準VSレベルの割り込み)が1に固定される。さらに、任意のゲスト外部割込みが実装される場合(GEILENがゼロ以外)、<code class="docutils literal notranslate"><span class="pre">midileg</span></code>のビット12(スーパーバイザーレベルゲスト外部割込み)も1に固定される。VSレベルの割り込みとゲスト外部割込みはMモードからHSモードへ常に移譲される。</p>
+</div>
+<div class="section" id="mip-mie">
+<h2>5.4.3 マシン割り込みレジスタ (<code class="docutils literal notranslate"><span class="pre">mip</span></code>, <code class="docutils literal notranslate"><span class="pre">mie</span></code>)<a class="headerlink" href="#mip-mie" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ハイパーバイザー拡張により、新規に追加された割り込み向けに<code class="docutils literal notranslate"><span class="pre">mip</span></code>と<code class="docutils literal notranslate"><span class="pre">mie</span></code>にビットが追加される。<strong>図5.35</strong>と<strong>図5.36</strong>はハイパーバイザーが実装された場合の<code class="docutils literal notranslate"><span class="pre">mip</span></code>と<code class="docutils literal notranslate"><span class="pre">mie</span></code>の標準的なビットフィールド(ビット15:0)を示す。</p>
+<div class="figure align-default" id="id3">
+<img alt="図5.35:mipの標準的なビット配置" src="_images/mip_standard_portion.PNG" />
+<p class="caption"><span class="caption-text">図5.35:mipの標準的なビット配置</span><a class="headerlink" href="#id3" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<div class="figure align-default" id="id4">
+<img alt="図5.36:mieの標準的なビット配置" src="_images/mie_standard_portion.PNG" />
+<p class="caption"><span class="caption-text">図5.36:mieの標準的なビット配置</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">mip</span></code>の<code class="docutils literal notranslate"><span class="pre">SGEIP</span></code>, <code class="docutils literal notranslate"><span class="pre">VSEIP</span></code>, <code class="docutils literal notranslate"><span class="pre">VSTIP</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VSSIP</span></code>ビットはハイパーバイザーCSRである<code class="docutils literal notranslate"><span class="pre">hip</span></code>へのエイリアスであり、<code class="docutils literal notranslate"><span class="pre">mie</span></code>の<code class="docutils literal notranslate"><span class="pre">SGEIE</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VSEIE</span></code>, <code class="docutils literal notranslate"><span class="pre">VSTIE</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VSSIE</span></code>は<code class="docutils literal notranslate"><span class="pre">hie</span></code>の同じビットへのエイリアスである。</p>
+</div>
+<div class="section" id="mtval2">
+<h2>5.4.4 マシン第2トラップ値レジスタ (<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>)<a class="headerlink" href="#mtval2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mtval2</span></code>レジスタはMXLENビットの読み書き可能なレジスタであり、<strong>図5.37</strong>にビットフォーマットを示す。例外により実行モードがMモードに移行した場合、<code class="docutils literal notranslate"><span class="pre">mtval</span></code>以外の例外の情報を格納するために使用され、ソフトウェアにより例外を処理するために使用される。</p>
+<div class="figure align-default" id="id5">
+<img alt="図3.37:マシン第2トラップ値レジスタ" src="_images/mtval2.PNG" />
+<p class="caption"><span class="caption-text">図3.37:マシン第2トラップ値レジスタ</span><a class="headerlink" href="#id5" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>ゲストページフォルト例外により動作がMモードに移行した場合、<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>にはゼロもしくは変換に失敗したゲスト物理アドレスが2ビット右にシフトした値が書き込まれる。他の例外では<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>はゼロが設定されるが、将来の仕様拡張や他の例外要因により<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>の動作が変更される可能性がある。</p>
+<p>アドレス変換の第1ステージ(VSステージ)による暗黙的なメモリアクセスゲストページフォルトの場合、暗黙的なメモリアクセスのゲスト物理アドレスが<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>に書き込まれる。このような状態における曖昧性を解消するために<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>に更なる情報が書き込まれる。</p>
+<p>そうでない場合、ミスアラインロードとミスアラインストアによりゲストページフォルトが発生するときは、<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>のゲスト物理アドレスは<code class="docutils literal notranslate"><span class="pre">mtval</span></code>に記録されている仮想アドレスのアクセスに失敗した部分に相当する。可変長命令をサポートするシステム上で命令ゲストページフォルトが発生した場合、<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>にゼロ以外の値が書き込まれた場合には<code class="docutils literal notranslate"><span class="pre">mtval</span></code>に格納されている仮想アドレスが示す命令の一部分が格納されている。</p>
+<p><code class="docutils literal notranslate"><span class="pre">mtval2</span></code>は<strong>WARL</strong>レジスタでありゼロもしくはゲスト物理アドレスの2ビットシフトした値が書き込まれている。</p>
+</div>
+<div class="section" id="mtinst">
+<h2>5.4.5 マシントラップ命令レジスタ (<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>)<a class="headerlink" href="#mtinst" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mtinst</span></code>レジスタはMXLENビットの読み書き可能なレジスタであり、<strong>図5.38</strong>にビットフォーマットを示す。例外が発生しMモードに移行した場合、<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>にゼロ以外の値が書き込まれた場合に例外が発生した命令が書き込まれ、ソフトウェアにより例外を処理するための情報として使用される。<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>に書き込まれる値については<strong>5.6.3節</strong>で説明している。</p>
+<div class="figure align-default" id="id6">
+<img alt="図5.38:マシントラップ命令レジスタ(mtins)" src="_images/mtinst.PNG" />
+<p class="caption"><span class="caption-text">図5.38:マシントラップ命令レジスタ(mtins)</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">mtinst</span></code>は<strong>WARL</strong>レジスタであり、例外が発生すると実装により自動的に書き込まれ値が保持される。</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 著作権 2020, msyksphinz
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

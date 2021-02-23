@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.3 ハイパーバイザー命令 &mdash; riscv-hv-japanese  ドキュメント</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> riscv-hv-japanese
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html">5.1 Privilege Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">riscv-hv-japanese</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>5.3 ハイパーバイザー命令</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/5_3_hypervisor_instructions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>5.3 ハイパーバイザー命令<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>ハイパーバイザー拡張では、仮想マシンのロード・ストア命令と2つの特権付きfence命令が追加される。</p>
+<div class="section" id="id2">
+<h2>5.3.1 ハイパーバイザー仮想マシンロードストア命令<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="figure align-default" id="id4">
+<img alt="ハイパーバイザー仮想マシンロードストア命令" src="_images/hypervisor_memory_insts.PNG" />
+<p class="caption"><span class="caption-text">ハイパーバイザー仮想マシンロードストア命令</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>ハイパーバイザー仮想マシンロードストア命令は、Mモード,
+HSモードもしくは<a class="reference external" href="#hstatus_HU">hstatus.HU</a>=1の場合にUモードでのみ有効である。それぞれの命令はV=1であるかのように動作する;
+つまり、アドレス変換・保護・エンディアンなどがまるでVSモードもしくはVUモードであるかのように動作する。<code class="docutils literal notranslate"><span class="pre">hstatus</span></code>の<a class="reference external" href="#hstatus_SPVP">SPVP</a>フィールドはアクセス特権レベルを制御する。明示的なメモリアクセスは、SPVP=0の場合にはVUモードとして完了し、SPVP=1の時はVSモードのように完了する。通常V=1の場合には2ステージのアドレス変換が適用され、HSレベルの<code class="docutils literal notranslate"><span class="pre">sstatus.SUM</span></code>ビットは無視される。HSレベルの<code class="docutils literal notranslate"><span class="pre">sstatus.MXR</span></code>はアドレス変換の両方のステージ(VSステージとGステージ)に対して実行可能なページのみを読み込み可能とし、一方で<code class="docutils literal notranslate"><span class="pre">vstatus.MXR</span></code>は最初の変換(VSステージ)にのみ影響を与える。</p>
+<p>すべてのRV32IとRV64Iのロード命令、LB, LBU, LH, LHU, LW, LWU,
+LD命令はそれぞれ以下の仮想マシン命令に相当する: HLV.B, HLV.BU, HLV.H,
+HLV.HU, HLV.W, HLV.WU, HLV.D。すべてのRV32IとRV64Iのストア命令、SB, SH,
+SW, SD命令はそれぞれ以下の仮想マシン命令に相当する: HSV.B, HSV.H, HSV.W,
+HSV.D。もちろん、HLV.WU, HVL.D, HSV.DはRV32では無効である。</p>
+<p>HLVX.HUとHLVX.WUはHLVU.HUとHV.WUと同一であるが、アドレス変換中に<strong>実行</strong>権限が<strong>読み込み</strong>権限の代わりをすることができる。つまり、アドレス変換中に読みだされるページは実行可能でなければならないが、読み出し可能である必要はないということである。HLVX.WUはRV32で有効であるが、LWUおよびHLV.WUは有効ではないことに注意すること(RV32では、HLVX。WUはHLV.Wの一種であると考えられ、32ビットの値に対して符号拡張は行われない)。</p>
+<p>HLVXはマシンレベルの物理メモリ保護(PMP)をオーバーライドすることはできず、PMPにより実行可能のみのメモリ領域に対してはアクセスフォルト例外が発生する。</p>
+<p>V=1の時に仮想マシンロード・ストア命令(HLV, HLVX,
+HSV)を実行しようとすると仮想命令例外が発生する。<code class="docutils literal notranslate"><span class="pre">hstatus.HU=0</span></code>時のUモードで同様の命令を実行しようとすると不正命令例外が発生する。</p>
+<hr class="docutils" />
+<p>メモ：Spikeの<code class="docutils literal notranslate"><span class="pre">HLV.B</span></code>の実装を確認すると、以下のようになっていた。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HLV.B</span></code></p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">require_extension</span><span class="p">(</span><span class="sc">&#39;H&#39;</span><span class="p">);</span>
+<span class="n">require_novirt</span><span class="p">();</span>
+<span class="n">require_privilege</span><span class="p">(</span><span class="n">get_field</span><span class="p">(</span><span class="n">STATE</span><span class="p">.</span><span class="n">hstatus</span><span class="p">,</span> <span class="n">HSTATUS_HU</span><span class="p">)</span> <span class="o">?</span> <span class="nl">PRV_U</span> <span class="p">:</span> <span class="n">PRV_S</span><span class="p">);</span>
+<span class="n">WRITE_RD</span><span class="p">(</span><span class="n">MMU</span><span class="p">.</span><span class="n">guest_load_int8</span><span class="p">(</span><span class="n">RS1</span><span class="p">));</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">MMU.guest_load_int8</span></code>というのが使用されている。<code class="docutils literal notranslate"><span class="pre">mmu.h</span></code>には以下のように<code class="docutils literal notranslate"><span class="pre">#define</span></code>で定義がなされていた。</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// load value from guest memory at aligned address; zero extend to register width</span>
+<span class="n">load_func</span><span class="p">(</span><span class="n">uint8</span><span class="p">,</span> <span class="n">guest_load</span><span class="p">,</span> <span class="n">RISCV_XLATE_VIRT</span><span class="p">)</span>
+<span class="n">load_func</span><span class="p">(</span><span class="n">uint16</span><span class="p">,</span> <span class="n">guest_load</span><span class="p">,</span> <span class="n">RISCV_XLATE_VIRT</span><span class="p">)</span>
+<span class="n">load_func</span><span class="p">(</span><span class="n">uint32</span><span class="p">,</span> <span class="n">guest_load</span><span class="p">,</span> <span class="n">RISCV_XLATE_VIRT</span><span class="p">)</span>
+<span class="n">load_func</span><span class="p">(</span><span class="n">uint64</span><span class="p">,</span> <span class="n">guest_load</span><span class="p">,</span> <span class="n">RISCV_XLATE_VIRT</span><span class="p">)</span>
+<span class="n">load_func</span><span class="p">(</span><span class="n">uint16</span><span class="p">,</span> <span class="n">guest_load_x</span><span class="p">,</span> <span class="n">RISCV_XLATE_VIRT</span><span class="o">|</span><span class="n">RISCV_XLATE_VIRT_MXR</span><span class="p">)</span>
+<span class="n">load_func</span><span class="p">(</span><span class="n">uint32</span><span class="p">,</span> <span class="n">guest_load_x</span><span class="p">,</span> <span class="n">RISCV_XLATE_VIRT</span><span class="o">|</span><span class="n">RISCV_XLATE_VIRT_MXR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">load_func()</span></code>の実体は<code class="docutils literal notranslate"><span class="pre">define</span></code>であるが、そこでは<code class="docutils literal notranslate"><span class="pre">RISCV_XLATE_VIRT</span></code>で宣言されているフラグでテーブルウォークの制御がなされているようだった。</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span> #define load_func(type, prefix, xlate_flags) \
+   inline type##_t prefix##_##type(reg_t addr, bool require_alignment = false) { \
+     if (xlate_flags) \
+       flush_tlb(); \
+     if (unlikely(addr &amp; (sizeof(type##_t)-1))) { \
+...
+     target_endian&lt;type##_t&gt; res; \
+     load_slow_path(addr, sizeof(type##_t), (uint8_t*)&amp;res, (xlate_flags)); \
+     if (proc) READ_MEM(addr, size); \
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">load_slow_path()</span></code>は以下のような実装になっていた。</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">mmu_t</span><span class="o">::</span><span class="n">load_slow_path</span><span class="p">(</span><span class="n">reg_t</span> <span class="n">addr</span><span class="p">,</span> <span class="n">reg_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">bytes</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">xlate_flags</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">reg_t</span> <span class="n">paddr</span> <span class="o">=</span> <span class="n">translate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">xlate_flags</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">translate()</span></code>は<code class="docutils literal notranslate"><span class="pre">xlate_flags</span></code>で挙動を変えるようだ。</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">reg_t</span> <span class="n">mmu_t</span><span class="o">::</span><span class="n">translate</span><span class="p">(</span><span class="n">reg_t</span> <span class="n">addr</span><span class="p">,</span> <span class="n">reg_t</span> <span class="n">len</span><span class="p">,</span> <span class="n">access_type</span> <span class="n">type</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">xlate_flags</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">proc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">addr</span><span class="p">;</span>
+
+  <span class="kt">bool</span> <span class="n">mxr</span> <span class="o">=</span> <span class="n">get_field</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">mstatus</span><span class="p">,</span> <span class="n">MSTATUS_MXR</span><span class="p">);</span>
+  <span class="kt">bool</span> <span class="n">virt</span> <span class="o">=</span> <span class="p">(</span><span class="n">proc</span><span class="p">)</span> <span class="o">?</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="nl">v</span> <span class="p">:</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="n">reg_t</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">prv</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">type</span> <span class="o">!=</span> <span class="n">FETCH</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">debug_mode</span> <span class="o">&amp;&amp;</span> <span class="n">get_field</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">mstatus</span><span class="p">,</span> <span class="n">MSTATUS_MPRV</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">mode</span> <span class="o">=</span> <span class="n">get_field</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">mstatus</span><span class="p">,</span> <span class="n">MSTATUS_MPP</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">get_field</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">mstatus</span><span class="p">,</span> <span class="n">MSTATUS_MPV</span><span class="p">))</span>
+        <span class="n">virt</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">debug_mode</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">xlate_flags</span> <span class="o">&amp;</span> <span class="n">RISCV_XLATE_VIRT</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">virt</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="n">mode</span> <span class="o">=</span> <span class="n">get_field</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">.</span><span class="n">hstatus</span><span class="p">,</span> <span class="n">HSTATUS_SPVP</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">LOAD</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">xlate_flags</span> <span class="o">&amp;</span> <span class="n">RISCV_XLATE_VIRT_MXR</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">mxr</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">reg_t</span> <span class="n">paddr</span> <span class="o">=</span> <span class="n">walk</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">virt</span><span class="p">,</span> <span class="n">mxr</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">addr</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">PGSIZE</span><span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pmp_ok</span><span class="p">(</span><span class="n">paddr</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="n">mode</span><span class="p">))</span>
+    <span class="n">throw_access_exception</span><span class="p">(</span><span class="n">virt</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">type</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">paddr</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id3">
+<h2>5.3.2 ハイパーバイザーメモリ管理フェンス命令<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><img alt="image0" src="_images/hfence.PNG" /></p>
+<p>ハイパーバイザーメモリ管理フェンス命令、<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>と<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>は<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>(<strong>4.2.1節</strong>)と同様の動作をするが、<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>は<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>
+CSRによって制御されるVSレベルのメモリ管理データ構造に対して適用されるところが、<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>は<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>
+CSRによって制御されるVSレベルのメモリ管理データ構造に対して適用されるところが異なる。<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>命令は現在の<code class="docutils literal notranslate"><span class="pre">satp</span></code>(V=0の場合はHSレベルの<code class="docutils literal notranslate"><span class="pre">satp</span></code>で、V=1の場合は<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>)によって管理されるデータ構造に対し適用される。</p>
+<p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>はMモードもしくはHSモードに対して有効である。その効果は、一時的にVSモードに入りSFENCE.VMA命令を実行するのと同一である。<code class="docutils literal notranslate"><span class="pre">HENCE.VVMA</span></code>はHARTによって見ることのできるすべての当該命令実行前のすべてのメモリストアが、VSレベルのメモリ管理データ構造のそのHARTによる後続のすべての暗黙的なリード操作の前に順序付けられることが保証される：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>の後にある命令</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>実行時と<code class="docutils literal notranslate"><span class="pre">hgatp.VMID</span></code>の設定が同じ場合に実行された命令</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>が実行されたときに<code class="docutils literal notranslate"><span class="pre">hgatp.VMID</span></code>が異なる暗黙的な読み込みについては順序付けられる必要はない。オペランド<code class="docutils literal notranslate"><span class="pre">rs1</span> <span class="pre">!=</span> <span class="pre">x0</span></code>である場合、単一のゲスト仮想アドレスが指定され、オペランド<code class="docutils literal notranslate"><span class="pre">rs2!=x0</span></code>である場合、単一のゲストアドレス空間識別子(ASID)が指定される。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>命令は<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>が実行されたときの<code class="docutils literal notranslate"><span class="pre">hgatp.VMID</span></code>によって識別される単一の仮想マシンにのみ適用される。</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">rs2!=x0</span></code>である場合、rs2が保持しているビットの内<code class="docutils literal notranslate"><span class="pre">XLEN-1:ASIDMAX</span></code>は将来のための予約であり、ソフトウェアによりゼロにされているべきであり、現在の実装では無視される。さらに、ASIDLEN
+&lt;
+ASIDMAXである場合は<code class="docutils literal notranslate"><span class="pre">rs2</span></code>に保持されているビット<code class="docutils literal notranslate"><span class="pre">ASIDMAX-1:ASIDLEN</span></code>の値は実装により無視される。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>のより単純な実装では、<code class="docutils literal notranslate"><span class="pre">rs1</span></code>のゲスト仮想アドレスと<code class="docutils literal notranslate"><span class="pre">rs2</span></code>のゲストASID値、および
+–<code class="docutils literal notranslate"><span class="pre">hgatp.VMID</span></code>を無視して、すべての仮想マシンのVSレベルのメモリ管理のためのグローバルフェンスを常に実行したり、すべてのメモリ管理データ構造のためのグローバルフェンスを実行したりすることができる。</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">mstatus.TVM</span></code>と<code class="docutils literal notranslate"><span class="pre">hstatus.VTVM</span></code>の値のどちらも、<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>に例外を発生されることはない。</p>
+<p><code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>はHSモードにおいて<code class="docutils literal notranslate"><span class="pre">mstatus.TVM=0</span></code>の場合か、Mモード(<code class="docutils literal notranslate"><span class="pre">mstatus.TVM</span></code>の値には関係ない)の場合にのみ有効である。<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>命令の実行は現在実行しているHARTにより見えているそれまでのストア操作は、<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>の後に続くゲスト物理メモリ管理データ構造を操作したHARTにより実行される後続の読み込み操作に対して順序付けられることが保証される。<code class="docutils literal notranslate"><span class="pre">rs1!=x0</span></code>ならば2ビット右シフトされた単一の物理アドレスであることを示し、<code class="docutils literal notranslate"><span class="pre">rs2!=x0</span></code>ならｂ、単一の仮想マシン識別子(VMID)が指定される。</p>
+<blockquote>
+<div><p>トラップ発生時に<code class="docutils literal notranslate"><span class="pre">htval</span></code>に書き込まれるゲスト物理アドレスのように、<code class="docutils literal notranslate"><span class="pre">rs1</span></code>に指定されるゲスト物理アドレスは2ビット右にシフトされ、XLENよりも大きな値を格納する際により多くの値を格納できるようにしている。</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">rs2</span> <span class="pre">!=</span> <span class="pre">x0</span></code>である場合、rs2が保持している値のうち<code class="docutils literal notranslate"><span class="pre">XLEN-1:VMIDMAX</span></code>ビットの値は将来のための予約であり、ソフトウェアによりゼロが書き込まれるべきであり実装により無視される。さらに、VMIDLEN
+&lt;
+VMIDMAXであるばあいは、rs2のビットの内<code class="docutils literal notranslate"><span class="pre">VMIDMAX-1:VMIDLEN</span></code>の値は実装により無視される。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>のよりシンプルな実装では、rs1 のゲスト物理アドレスと
+rs2 の VMID
+値を無視して、常にすべての仮想マシンのゲスト物理メモリ管理のためのグローバルフェンス、またはすべてのメモリ管理データ構造のためのグローバルフェンスを実行することができる。</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>と<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>はV=1の時に実行すると仮想命令例外を発生するが、Uモードで実行すると不正命令例外を発生する。<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>を<code class="docutils literal notranslate"><span class="pre">mstatus.TVM=1</span></code>のHSモードで実行すると同様に不正命令例外が発生する。</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 著作権 2020, msyksphinz
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

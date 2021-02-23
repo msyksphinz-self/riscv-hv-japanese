@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.5 2ステージアドレス変換 &mdash; riscv-hv-japanese  ドキュメント</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> riscv-hv-japanese
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html">5.1 Privilege Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="riscv_hypervisor.html#hypervisor-and-virtual-supervisor-csrs">5.2 Hypervisor and Virtual Supervisor CSRs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">riscv-hv-japanese</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>5.5 2ステージアドレス変換</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/5_5_two_stage_address.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>5.5 2ステージアドレス変換<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>現在の仮想モードVが1であるときは常に2ステージアドレス変換と保護が有効である。すべての仮想メモリアクセスにおいて、オリジナルの仮想アドレスは<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>レジスタにより制御されるVSレベルアドレス変換によって最初のステージで変換され、<strong>ゲスト物理アドレス</strong>となる。ゲスト物理アドレスは次に<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>レジスタにより制御されるゲスト物理アドレスに変換され、スーパーバイザー物理アドレスに変換される。この2つのステージはVSステージ変換とGステージ変換と呼ばれる。V=1の際にこれらの2ステージアドレス変換を無効化する方法はないが、該当する<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>か<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のレジスタをゼロに設定することにより効率的にどちらかの変換を無効化することができる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>のMXRフィールドは実行可能フラグのみ設定されているページを読み込み可能にすることができるが、これはVSステージのページ保護にのみ有効である。VSレベルでのMXRの設定はゲスト物理ページ保護の設定をオーバーライドしない。HSレベルでのMXRの設定では、VSステージとGステージ両方の実行可能フラグについてオーバーライドされる。</p>
+<p>V=1では、アドレス変換を通常バイパスするメモリアクセスはGステージのアドレス変換のみを実行する目的がある。これはｖSレベルのページの読み書きなど、VSステージアドレス変換のサポートも含まれる。</p>
+<p>マシンレベルの物理メモリ保護については仮想モードの状態に関係なくスーパーバイザ物理アドレスにも適用される。</p>
+<div class="section" id="id2">
+<h2>5.5.1 ゲスト物理アドレス変換<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ゲスト物理アドレスからスーパーバイザー物理アドレスへの変換は、<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>(<strong>5.2.9節</strong>)
+CSRレジスタにより制御される。</p>
+<p>アドレス変換のすーきーむである<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のMODEフィールドでBareが設定されている場合、ゲスト物理アドレスとスーパーバイザー物理アドレスは全く変換されず同一であり、ゲスト物理アドレスからスーパーバイザ物理アドレスの変換中にメモリ保護は適用されない。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hgatp.MODE</span></code>がSv32x4, Sv39x4,
+Sv48v4が選択されたとき、Gステージアドレス変換は通常の仮想アドレス変換のスキームであるSv32,
+Sv39,
+Sv48に相当するものである。個々の場合において、やってくるアドレスのサイズは2ビットずつ広げられる(34ビット、41ビット、50ビット)。2つの余分なビットにより、ルートページテーブル(のみ)がサイズを通常の4KiBから16KiBに拡張される。大きなサイズにマッチさせるために、ルートページテーブルは4KiBのページ境界ではなく16KiBのアドレス境界に配置されている必要がある。このことを除けば、Gステージの変換は通常のSv32,
+Sv39,
+Sv48と他の機能については何の違いもない。ルートページテーブルではないページ、そしてすべてのページテーブルエントリ(PTE)は<strong>4.3節</strong>,
+<strong>4.4節</strong>, <strong>4.5節</strong>で説明されているものと同一である。</p>
+<p>Sv32x4では、やってくるゲスト物理アドレスは<strong>図5.39</strong>に示すように仮想ページ番号(VPN)とページオフセットに分割される。この分割方法はSv32における<strong>図4.15(73ページ)</strong>の分割方法と同一であるが、VPN[1]の上位に2ビット追加されているところが異なる(ゲスト物理アドレスの分割されたフィールドは、<strong>図4.16</strong>に示されるSv32が割り当てる物理アドレスの構造にそれぞれ相当している)。</p>
+<div class="figure align-default" id="id5">
+<img alt="図5.39:Sv32x4仮想アドレス(ゲスト物理アドレス)" src="_images/sv32x4_virtual_address.PNG" />
+<p class="caption"><span class="caption-text">図5.39:Sv32x4仮想アドレス(ゲスト物理アドレス)</span><a class="headerlink" href="#id5" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>Sv39x4では、やってくるゲスト物理アドレスは<strong>図5.40</strong>に示すように仮想ページ番号(VPN)とページオフセットに分割される。この分割方法はSv39における<strong>図4.18(77ページ)</strong>の分割方法と同一であるが、VPN[2]の上位に2ビット追加されているところが異なる。ビット63:41はゼロでなくてはならず、そうでなければゲストページフォルト例外が発生する。</p>
+<div class="figure align-default" id="id6">
+<img alt="図5.40:Sv39x4仮想アドレス(ゲスト物理アドレス)" src="_images/sv39x4_virtual_address.PNG" />
+<p class="caption"><span class="caption-text">図5.40:Sv39x4仮想アドレス(ゲスト物理アドレス)</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>Sv48x4では、やってくるゲスト物理アドレスは<strong>図5.41</strong>に示すように仮想ページ番号(VPN)とページオフセットに分割される。この分割方法はSv48における<strong>図4.31(78ページ)</strong>の分割方法と同一であるが、VPN[3]の上位に2ビット追加されているところが異なる。ビット63:50はゼロでなくてはならず、そうでなければゲストページフォルト例外が発生する。</p>
+<div class="figure align-default" id="id7">
+<img alt="図5.41:Sv48x4仮想アドレス(ゲスト物理アドレス)" src="_images/sv48x4_virtual_address.PNG" />
+<p class="caption"><span class="caption-text">図5.41:Sv48x4仮想アドレス(ゲスト物理アドレス)</span><a class="headerlink" href="#id7" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<blockquote>
+<div><p>RV32用のページベースのGステージアドレス変換方式Sv32x4は、34ビットのゲスト物理アドレスをサポートするように定義されており、RV32ハイパーバイザーが33ビットや34ビットの物理アドレスを持つ実在の32ビットRISC-Vマシンを仮想化する能力を制限する必要がない。これには、マシンが33ビットまたは34ビットの物理アドレスを使用している場合に、マシン自体を仮想化する可能性も含まれる。ルートページテーブルのサイズとアラインメントを4倍にすることは、Sv32を34ビットのアドレスをカバーするように拡張する最も安価な方法である。不必要に大きいルートページテーブルのために12KiBを無駄にする可能性があるが、ほとんどの(おそらくすべての)実際の用途では無視できるほどの影響はないと考えられる。</p>
+<p>物理アドレス空間の4倍の仮想アドレス空間を持つマシンを仮想化する一貫した機能は、RV64でも有用であると考えられている。例えば、39ビットの仮想アドレス(Sv39)を実装したマシンの場合、これにより、48ビットの仮想アドレス(Sv48)をハードウェアでサポートする必要も、シャドウページテーブルを使用してより大きなアドレス空間をエミュレートする必要もなく、ハイパーバイザー拡張は最大41ビットのゲスト物理アドレス空間をサポートすることができる。</p>
+</div></blockquote>
+<p>Sv32x4, Sv39x4,
+Sv48x4のゲスト物理アドレスは<strong>4.3.2節</strong>で説明されているSv32, Sv39,
+Sv48と同じアルゴリズムによって変換されるが、例外として：</p>
+<ul class="simple">
+<li><p>ステップ1において <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">hgatp.PPN</span> <span class="pre">×</span> <span class="pre">PAGESIZE</span></code>;</p></li>
+<li><p>現在の特権モードは常にUモードとして取り扱われ、</p></li>
+<li><p>ページフォルト例外の代わりにゲストページフォルト例外が通知される。</p></li>
+</ul>
+<p>Gステージのアドレス変換では、すべてのメモリアクセス(VSステージアドレス変換のためのデータ構造へのアクセスも含む)はユーザレベルでのアクセスであると考えられ、Uモードであるかのように実行される。アクセスタイプのパーミッションー読み込み可能、書き込み可能、実行可能ーについてはGステージアドレス変換中にも、VSステージの変換と同様に実行される。VSステージのアドレス変換のために行われるメモリアクセス(VSレベルページテーブルへのアクセスなど)については、パーミッションはオリジナルのアクセスタイプとは違いロードストア処理としてチェックされる。しかしすべての例外はオリジナルのアクセスタイプ(命令フェッチ、ロード、ストア/AMO)として通知される。</p>
+<blockquote>
+<div><p>Gステージアドレス変換は、Gステージ変換と通常のHSレベルアドレス変換の間で、いくつかの(またはすべての)ページテーブルを共有する可能性があるため、Uビットを含めても、通常のアドレス変換と同じフォーマットをPTEに使用する。この使用法が一般的になるかどうかにかかわらず、我々はこれを除外しないことにした。</p>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>5.5.2 ゲストページフォルト<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ゲストページフォルト例芸は<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>
+CSRの制御によりMモードからHSモードに移譲される可能性があるが、他の動作モードに移譲することはできない。ゲストページフォルトでは、<code class="docutils literal notranslate"><span class="pre">mtval</span></code>もしくは<code class="docutils literal notranslate"><span class="pre">stval</span></code>に通常通りゲスト仮想アドレスが書き込まれるが、<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>もしくは<code class="docutils literal notranslate"><span class="pre">htval</span></code>にもゼロもしくは失敗したゲスト物理アドレスが2ビット右にシフトされて書き込まれる。<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>
+CSRもしくは<code class="docutils literal notranslate"><span class="pre">htinst</span></code>には<strong>5.6.3節</strong>に説明するように例外の発生した命令の情報か、アクセスに関する他の情報が書き込まれる。</p>
+<p>命令フェッチもしくはミスアラインメモリアクセスがページの境界をまたいだ場合、2つの異なるアドレス変換が発生する。このような状況でゲストページフォルトが発生した場合、失敗した仮想アドレスは<code class="docutils literal notranslate"><span class="pre">mtval</span></code>/<code class="docutils literal notranslate"><span class="pre">mtval</span></code>ともに通常のページフォルトと同様に書き込まれることが必要である。従って、失敗した仮想アドレス、ページ境界のバイトがアクセスバイトに含まれている場合、命令のオリジナルの仮想アドレスよりも上位のページ境界アドレスとなる可能性がある。</p>
+<p>ゲストページフォルトがVSステージアドレス変換による暗黙的なメモリアクセスが原因ではない場合、<code class="docutils literal notranslate"><span class="pre">mtval</span></code>/<code class="docutils literal notranslate"><span class="pre">stval</span></code>に書き込まれる正確な仮想アドレスに相当する比ゼロのゲスト物理アドレスが<code class="docutils literal notranslate"><span class="pre">mtval2</span></code>/<code class="docutils literal notranslate"><span class="pre">htval</span></code>に書き込まれる。</p>
+</div>
+<div class="section" id="id4">
+<h2>5.5.3 メモリ管理フェンス<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>命令の動作は現在仮想モードVに応じて影響を与える。V=0の時、仮想アドレス引数はHSレベルの仮想アドレスであり、ASID引数はHSレベルのASIDである。命令順序では、HSレベルのアドレス変換構造と、後続のHSレベルのアドレス変換処理で順序が保たれる。</p>
+<p>V=1では、<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>の仮想アドレス引数は現在動作している仮想マシンのゲスト仮想アドレスであり、ASID引数は現在の仮想マシンのVSレベルのASID引数である。現在の仮想マシンは<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>
+CSRのVMIDフィールドであり、現在の有効なASIDはこのVMIDとVSレベルのASIDを組み合わせていると考えることができる。<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>命令はVSレベルのアドレス変換構造と同一仮想マシン、例えば<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>実行時に<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>.VMIDが同一である仮想マシンによる後続のVSステージのアドレス変換の順序を保持する。</p>
+<p>ハイパーバイザー名れい<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>と<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>は<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>を補助するさらなるメモリ監視フェンスを提供する。これらの命令については<strong>5.3.2節</strong>で説明する。</p>
+<p><strong>3.6.2節</strong>では物理メモリ保護(Physical Memory Protection:
+PMP)とページベースアドレス変換の間の横断について議論する。そこでは、PMPの設定が物理メモリのページテーブルを保持している場所と、ページテーブルを指すメモリの場所を変更するような操作が行われた場合、MモードのソフトウェアはPMPの設定を仮想メモリシステムと同期させなければならない。HSレベルのアドレス変換では、MモードでPMP
+CSRを書き込んだ後に<code class="docutils literal notranslate"><span class="pre">SFENCE.VMA</span></code>命令を<code class="docutils literal notranslate"><span class="pre">rs1=x0,</span> <span class="pre">rs2=x0</span></code>で実行することでこれを達成できる。もしGステージのアドレス変換にてBareモードを指定していない場合、データ構造の同期がこれも必要となる。PMPの設定が、ゲスト物理ページテーブルもしくはゲストページテーブルの場所を指す物理メモリの場所を参照するような場合、MモードにおいてPMP
+CSRレジスタを書き込んだ後<code class="docutils literal notranslate"><span class="pre">HFENCE.GVMA</span></code>命令を<code class="docutils literal notranslate"><span class="pre">rs1=x0,</span> <span class="pre">rs2=x0</span></code>で実行する必要がある。<code class="docutils literal notranslate"><span class="pre">HFENCE.VVMA</span></code>命令はここでは必要ない。</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 著作権 2020, msyksphinz
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

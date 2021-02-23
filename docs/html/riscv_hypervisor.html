@@ -90,6 +90,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#hedeleg-and-hideleg">5.2.2 ハイパーバイザートラップ譲与レジスタ (hedeleg and hideleg)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hvip-hip-and-hie">5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, and hie)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hgeip-hgeie">ハイパーバイザーゲスト外部割込みレジスタ(hgeip, hgeie)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hcounteren">ハイパーバイザーカウンタ有効レジスタ(hcounteren)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#htimedelta-htimedeltah">ハイパーバイザータイムデルタレジスタ(<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>, <code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#htval">ハイパーバイザートラップ値レジスタ(htval)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#htinst">ハイパーバイザートラップ命令レジスタ(htinst)</a></li>
 </ul>
 </li>
 </ul>
@@ -282,11 +286,11 @@ CSRは、複製する必要があるスーパーバイザCSRにのみ存在す�
 <p>VSXLフィールドは、VSモードの有効なXLEN（VSXLENとして知られている）を制御する。これは、HSモードのXLEN（HSXLEN）とは異なる場合がある。
 HSXLEN = 32の場合、VSXLフィールドは存在せず、VSXLEN = 32である。 HSXLEN
 =
-64の場合、VSXLは、16ページのFigure-3.1に示すmisaのMXLフィールドと同じようにエンコードされるWARLフィールドです。特に、実装により、VSXLを読み取り専用フィールドにすることができ、これによりVSXLEN
-= HSXLENを保証する。</p>
-<p>もしHSXLENが32からより大きいビット幅に変更された場合かつVSXLが複数の値を持つことができる場合、新しいHSXLENよりも大きくないサポートされている最大の値を設定することができる。</p>
-<p><code class="docutils literal notranslate"><span class="pre">hstatus</span></code>のフィールドVTSR, VTW,
-VTVMは<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>のフィールド<code class="docutils literal notranslate"><span class="pre">TSR,</span> <span class="pre">TW,</span> <span class="pre">TVM</span></code>と同じ役割を持っており、VSモードにのみ影響を与える。これは不正命令例外の代わりに仮想命令例外を発生させる。VTSR=1の場合、VSモードでSRETめいれいを実行しようとすると仮想命令例外を発生させる。VTW=1(かつmstatus.TV=0であると仮定する)の場合、VSモードでWFI命令を実行しWFIが実装によって定められるタイムリミットに到達すると仮想命令例外が発生する。VTVM=1の場合、VSモード中にSFENCE.VMAを実行するか<code class="docutils literal notranslate"><span class="pre">satp</span></code>CSRにアクセスすると仮想命令例外が発生する。</p>
+64の場合、VSXLは、16ページのFigure-3.1に示すmisaのMXLフィールドと同じようにエンコードされるWARLフィールドである。特別な条件として、実装によりVSXLを読み取り専用フィールドにすることができ、これによりVSXLEN
+= HSXLENを保証させることができる。</p>
+<p>もしHSXLENが32からより大きいビット幅に変更された場合、かつVSXLが複数の値を持つことができる場合、VSXLは新しいHSXLEN以下のサポートされている最大の値を設定することができる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hstatus</span></code>のフィールド<code class="docutils literal notranslate"><span class="pre">VTSR</span></code>, <code class="docutils literal notranslate"><span class="pre">VTW</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VTVM</span></code>は<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>のフィールド<code class="docutils literal notranslate"><span class="pre">TSR,</span> <span class="pre">TW,</span> <span class="pre">TVM</span></code>と同じ役割を持っており、VSモードにのみ影響を与える。これは不正命令例外の代わりに仮想命令例外を発生させる。VTSR=1の場合、VSモードでSRETめいれいを実行しようとすると仮想命令例外を発生させる。VTW=1(かつmstatus.TV=0であると仮定する)の場合、VSモードでWFI命令を実行しWFIが実装によって定められるタイムリミットに到達すると仮想命令例外が発生する。VTVM=1の場合、VSモード中にSFENCE.VMAを実行するか<code class="docutils literal notranslate"><span class="pre">satp</span></code>CSRにアクセスすると仮想命令例外が発生する。</p>
 <p>VGEIN(Virtual Guest External Interrupt
 Number)フィールドはVSレベルの外部割込みに対するゲストの外部割込みソースを選択する。VGEINはWLRLフィールドであり、0からゲストの外部割込み番号(GEILEN)までの間の値を設定しなければならない。VGEIN=0の場合、VSレベルの外部割込みに対してゲストの外部割込みソースは選択されていない。GEILENが0であるならば、VGEINはハードワイヤでゼロに設定されている。ゲストの割り込みについては5.2.4層で説明しており、VGEINについては5.2.3章でより詳細に説明している。</p>
 <p>HUフィールド(Hypervisor User
@@ -483,6 +487,69 @@ VSSIPを設定することによりVSレベルのソフトウェア割込みが�
 1つの仮想HARTが受け取る可能性のある個別の割り込みの数は、割り込みコントローラーによって決定される。</p>
 </div></blockquote>
 <p>レジスタ<code class="docutils literal notranslate"><span class="pre">hgie</span></code>はスパーバイザレベル(HSレベル)のゲスト外部割込みを発生させるゲスト外部割込みのサブセットを選択する。<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>の割り込み許可ビットは<code class="docutils literal notranslate"><span class="pre">hstatus.VGEIN</span></code>によって<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>により選択されるVSレベルの外部割込み信号の影響を与えない。</p>
+</div>
+<div class="section" id="hcounteren">
+<h2>ハイパーバイザーカウンタ有効レジスタ(hcounteren)<a class="headerlink" href="#hcounteren" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>カウンタ有効レジスタは32ビット幅のレジスタでハードウェアパフォーマンスモニタカウンタの制御をゲストマシンに提供する。</p>
+<div class="figure align-default" id="id9">
+<img alt="image-20200929085803068" src="_images/figure513_hcounteren.PNG" />
+<p class="caption"><span class="caption-text">image-20200929085803068</span><a class="headerlink" href="#id9" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>レジスタのCY, TM, IR,
+HPMnビットがクリアされている場合、V=1の場合に<code class="docutils literal notranslate"><span class="pre">cycle,</span> <span class="pre">time,</span> <span class="pre">instret,</span> <span class="pre">hpmcountern</span></code>レジスタを読もうとした場合、<code class="docutils literal notranslate"><span class="pre">mcounteren</span></code>の同じビットが1であった場合に仮想命令例外が発生する。V=1であり、他の理由によりアクセスが抑制されていない限りこれらのビットのうち1つが設定されている場合、当該レジスタへのアクセスは許可される。VUモードでは、当該ビットにおいて<code class="docutils literal notranslate"><span class="pre">hcountern</span></code>と<code class="docutils literal notranslate"><span class="pre">scounteren</span></code>ビットが設定されていなければカウンタを読むことは出来ない。</p>
+<p><code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>は実装されていなければならない。しかし、任意のビットをゼロで固定することができ、当該カウンタはV=1の場合に例外が発生することを意味する。従ってこれらのビットフィールドは高価としてはWARLフィールドである。</p>
+</div>
+<div class="section" id="htimedelta-htimedeltah">
+<h2>ハイパーバイザータイムデルタレジスタ(<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>, <code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>)<a class="headerlink" href="#htimedelta-htimedeltah" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hitedelta</span></code>
+CSRは読み書き可能なレジスタであり、<code class="docutils literal notranslate"><span class="pre">time</span></code>CSRとVSモードまたはVUモードの値の差分を保持している。これは<code class="docutils literal notranslate"><span class="pre">time</span></code>CSRをVSモードかVUモードで読んだ場合に<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>を読み込むことにより実際の<code class="docutils literal notranslate"><span class="pre">time</span></code>の値を計算するために使用する。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>と<code class="docutils literal notranslate"><span class="pre">time</span></code>の加算にはオーバフローは無視されるため、<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>の大きな値の表現には負数のタイムオフセット表現が使用される。</p>
+</div></blockquote>
+<div class="figure align-default" id="id10">
+<img alt="image-20200929090133111" src="_images/figure514_htimedelta.PNG" />
+<p class="caption"><span class="caption-text">image-20200929090133111</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>HSXLEN=32の倍には、<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>レジスタはデルタ値の下位32ビットを保持し、<code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>はデルタ値の上位32ビットを保持する。</p>
+<div class="figure align-default" id="id11">
+<img alt="image-20200929090305873" src="_images/figure515_htimedelta_HSXLEN32.PNG" />
+<p class="caption"><span class="caption-text">image-20200929090305873</span><a class="headerlink" href="#id11" title="この画像へのパーマリンク">¶</a></p>
+</div>
+</div>
+<div class="section" id="htval">
+<h2>ハイパーバイザートラップ値レジスタ(htval)<a class="headerlink" href="#htval" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">htval</span></code>レジスタはHSXLENビットの読み書き可能なレジスタで、Figure
+5.16のようなレイアウトである。HSモードにトラップが発生すると、<code class="docutils literal notranslate"><span class="pre">htval</span></code>レジスタに例外固有の情報が書き込まれる。<code class="docutils literal notranslate"><span class="pre">stval</span></code>と同様に、ソフトウェアによりトラップを制御するためのレジスタである。</p>
+<div class="figure align-default" id="id12">
+<img alt="image-20200929092807000" src="_images/figure516_htval.PNG" />
+<p class="caption"><span class="caption-text">image-20200929092807000</span><a class="headerlink" href="#id12" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>ゲストページフォルト例外がHSモードに対して発生すると、<code class="docutils literal notranslate"><span class="pre">htval</span></code>にはゼロもしくは例外が発生した物理アドレスを2ビット右シフトした値が書き込まれる。他の例外では、<code class="docutils literal notranslate"><span class="pre">htval</span></code>にはゼロが設定されるが、将来の拡張によっては他の例外でも<code class="docutils literal notranslate"><span class="pre">htval</span></code>に値が設定される可能性がある。</p>
+<p>アドレス変換における第1ステージ(VSステージ)における暗黙的なメモリアクセスによりゲストページフォルトが発生した場合には、暗黙的なメモリアクセスが失敗したときのゲストの物理アドレスが書き込まれる
+ー
+例えば、読み込むことのできなかったVSレベルのページテーブルエントリのアドレスである(VSステージの変換が失敗した場合、元の仮想アドレスに相当するゲストの物理アドレスは分からない)。このような状況を回避するために、<code class="docutils literal notranslate"><span class="pre">htinst</span></code>
+CSRによってさらに情報が提供される。</p>
+<p>それ以外の場合、ゲストページフォルト例外の原因となるロードとストアのミスアラインアクセスが発生した場合、<code class="docutils literal notranslate"><span class="pre">htval</span></code>のゼロ以外のゲスト物理アドレスは、<code class="docutils literal notranslate"><span class="pre">stval</span></code>の仮想アドレスで示されるアクセスの失敗部分に対応する。可変長命令を使用するシステムでの命令ゲストページフォルト例外の場合、ゼロ以外の<code class="docutils literal notranslate"><span class="pre">htval</span></code>は、<code class="docutils literal notranslate"><span class="pre">stval</span></code>の仮想アドレスで示される命令の失敗部分に対応する。</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">htval</span></code>に書き込まれたゲストの物理アドレスは、現在のXLENよりも広いアドレスに対応するために、右に2ビットシフトされる。
+RV32の場合、ハイパーバイザー拡張機能は34ビットまでのゲスト物理アドレスを許可し、<code class="docutils literal notranslate"><span class="pre">htval</span></code>はアドレスのビット33：2を示す。このゲスト物理アドレスのshift-by-2エンコーディングは、PMPアドレスレジスタ(Section
+3.6)およびページテーブルエントリ(Section
+4.3、4.4、および4.5)の物理アドレスのエンコーディングと一致します。</p>
+<p>例外の発生したゲスト物理アドレスの最下位2ビットが必要な場合、これらのビットは通常、<code class="docutils literal notranslate"><span class="pre">stval</span></code>の障害のある仮想アドレスの最下位2ビットと同じである。VSステージアドレス変換の暗黙的なメモリアクセスによる例外の場合、最下位の2ビットはゼロになる。これらのケースは、レジスタ<code class="docutils literal notranslate"><span class="pre">htinst</span></code>で提供される値を使用して区別できます。</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">htval</span></code>はWARL属性のレジスタであり、ゼロもしくは2ビットシフトされたゲスト物理アドレスの任意の一部を保持する必要がある。</p>
+<blockquote>
+<div><p>別の方法で想定する理由がない限り(プラットフォーム標準など)、htvalに値を書き込むソフトウェアは、保存されている値を確認するために<code class="docutils literal notranslate"><span class="pre">htval</span></code>から読み戻す必要がある。</p>
+</div></blockquote>
+</div>
+<div class="section" id="htinst">
+<h2>ハイパーバイザートラップ命令レジスタ(htinst)<a class="headerlink" href="#htinst" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">htinst</span></code>レジスタはHSXLENビットの読み書き可能なレジスタでありFigure-5.17のようなレジスタレイアウトである。トラップがHSモードに通知れると、<code class="docutils literal notranslate"><span class="pre">htinst</span></code>にはトラップされた命令が書き込まれ、ソフトウェアがトラップを処理するための補助として使用される。<code class="docutils literal notranslate"><span class="pre">htinst</span></code>レジスタに書き込まれる値は5.6.3節に説明されている。</p>
+<div class="figure align-default" id="id13">
+<img alt="image-20200930100412142" src="_images/figure517_htinst.PNG" />
+<p class="caption"><span class="caption-text">image-20200930100412142</span><a class="headerlink" href="#id13" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">htinst</span></code>レジスタはWARL属性であり、トラップ初声時には実装により自動的に値が書き込まれその値が保持される。</p>
 </div>
 </div>
 
