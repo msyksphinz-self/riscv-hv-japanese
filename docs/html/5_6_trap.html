@@ -369,7 +369,7 @@ CSRにアクセスしようとした場合</p></li>
 <div class="section" id="id3">
 <h2>5.6.2 例外発生時の動作<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>HSモードもしくはUモードで例外が発生した場合、<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>か<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>により権限が委譲されない限りはMモードに移行する(移譲される場合はHSモードに移行する)。VSモードかVUモードで例外が発生した場合は<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>か<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>により移譲されない限りはMモードに移行する(移譲される場合は<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>か<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>によりさらに移譲されてVSモードに移譲されない限りはHSモードに移行する)。</p>
-<p>例外によりMモードに移行した場合、仮想モードVは0に設定され、<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>(と<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>)のMPVとMPPビットは<strong>表5.6</strong>に示す条件に則り設定される。例外によりMモードに移行されると、<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>/<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>のGVA,
+<p>例外によりMモードに移行した場合、仮想モードVは0に設定され、<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>(と``mstatush``)のMPVとMPPビットは<strong>表5.6</strong>に示す条件に則り設定される。例外によりMモードに移行されると、<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>/<code class="docutils literal notranslate"><span class="pre">mstatush</span></code>のGVA,
 MPIE, MIEフィールドに値が書き込まれ、<code class="docutils literal notranslate"><span class="pre">mepc</span></code>, <code class="docutils literal notranslate"><span class="pre">mcause</span></code>, <code class="docutils literal notranslate"><span class="pre">mtval</span></code>,
 <code class="docutils literal notranslate"><span class="pre">mtval2</span></code>レジスタが書き込まれる。</p>
 <table class="docutils align-default">
@@ -506,138 +506,27 @@ Word)である場合、例外の発生した命令はLWであり、レジスタ�
 </div></blockquote>
 <p><strong>表5.9</strong>は各標準的な例外要因について、例外命令レジスタに自動的に書き込まれる値を示している。例外時にこれらの命令のフェッチを防ぐために、ゼロもしくは疑似命令のみ書き込まれるようになている。例外の発生した命令が標準命令でない場合にのみ自動的にカスタム値が書き込まれる。将来の仕様更新や拡張により、上記の許可される値の集合の値を選択して他の値が書き込まれることは許される。</p>
 <p>この表に示されるように、同期例外の場合、明示的なメモリアクセス(ロード命令、ストア命令、AMO命令)により例外が発生した場合にのみ例外命令レジスタに標準的な変換後の値が書き込まれる。この表によると、標準的な変換では現在はこれらのメモリアクセス命令のみ定義されている。もしこれらの変換が定義されていない同期例外が発生した場合、例外命令レジスにはゼロが書き込まれる(もしくはこのような状況の場合には特殊な疑似命令が書き込まれる)。</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 13%" />
-<col style="width: 25%" />
-<col style="width: 19%" />
-<col style="width: 19%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>例外</p></th>
-<th class="head"><p>ゼロ値</p></th>
-<th class="head"><p>変換
-された標準命令</p></th>
-<th class="head"><p>カスタム値</p></th>
-<th class="head"><p>疑似命令値</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>命令アドレ
-スミスアライン</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>命令ア
-クセスフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>不正命令</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>ブ
-レークポイント</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>仮想命令</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>ロードアドレ
-スミスアライン</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>ロードア
-クセスフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>ス
-トア/AMOアドレ
-スミスアライン</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>ストア/AMOア
-クセスフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>Environment
-Call</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>命令
-ページフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>ロード
-ページフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-even"><td><p>ストア/AMO
-ページフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-</tr>
-<tr class="row-odd"><td><p>命令ゲスト
-ページフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>No</p></td>
-<td><p>No</p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-even"><td><p>ロードゲスト
-ページフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><td><p>ス
-トア/AMOゲスト
-ページフォルト</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-<td><p>Yes</p></td>
-</tr>
-</tbody>
-</table>
+<p>例外                           ゼロ値 変換された標準命令 カスタム値 疑似命令値
+============================== ====== ================== ==========
+==========
+命令アドレスミスアライン       Yes    No                 Yes        No
+命令アクセスフォルト           Yes    No                 No         No
+不正命令                       Yes    No                 No         No
+ブレークポイント               Yes    No                 Yes        No
+仮想命令                       Yes    No                 Yes        No
+ロードアドレスミスアライン     Yes    Yes                Yes        No
+ロードアクセスフォルト         Yes    Yes                Yes        No
+ストア/AMOアドレスミスアライン Yes    Yes                Yes        No
+ストア/AMOアクセスフォルト     Yes    Yes                Yes        No
+Environment Call               Yes    No                 Yes        No
+命令ページフォルト             Yes    No                 No         No
+ロードページフォルト           Yes    Yes                Yes        No
+ストア/AMOページフォルト       Yes    Yes                Yes        No
+命令ゲストページフォルト       Yes    No                 No         Yes
+ロードゲストページフォルト     Yes    Yes                Yes        Yes
+ストア/AMOゲストページフォルト Yes    Yes                Yes        Yes
+============================== ====== ================== ==========
+==========</p>
 <ul class="simple">
 <li><p>表5.9:
 例外発生時に例外命令レジスタ(<code class="docutils literal notranslate"><span class="pre">mtinst</span></code>もしくは<code class="docutils literal notranslate"><span class="pre">htinst</span></code>)に自動的に書き込まれる値</p></li>

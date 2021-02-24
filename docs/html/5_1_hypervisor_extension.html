@@ -275,10 +275,6 @@ CSRは、複製する必要があるスーパーバイザCSRにのみ存在し�
 <img alt="図5.1: RV32時のハイパーバイザーステータスレジスタ\ ``hstatus``" src="_images/hypervisor_hstatus_RV32.PNG" />
 <p class="caption"><span class="caption-text">図5.1: RV32時のハイパーバイザーステータスレジスタ<code class="docutils literal notranslate"><span class="pre">hstatus</span></code></span><a class="headerlink" href="#id3" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id4">
-<img alt="図5.2: RV64時のハイパーバイザーステータスレジスタ(``hstatus``)" src="_images/hypervisor_hstatus_RV64.PNG" />
-<p class="caption"><span class="caption-text">図5.2: RV64時のハイパーバイザーステータスレジスタ(<code class="docutils literal notranslate"><span class="pre">hstatus</span></code>)</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
-</div>
 <p>VSXLフィールドはVSモード時の有効なXLEN値(この値がVSXLENとなる)を制御している。VSXLEN値はHSモード時のXLEN値(HSXLEN)と異なっていても良い。HSXLEN=32の時、VSXLフィールドは存在せず、VSXLEN=32となる。HSXLEN=64のとき、VSXLフィールドは<strong>WARL</strong>フィールドとなり、ページ16の表3.1の<code class="docutils literal notranslate"><span class="pre">misa</span></code>レジスタのMXL値と同様にエンコードされる。特殊なケースとして、VSXLEN=HSXLENであることが常に保証されるような実装の場合には、VSXLフィールドはRead-Onlyとして実装されることが許されている。</p>
 <p>HSXLENの値が32からより大きな値に変更され、かつVSXL値が複数の値を許可する場合、VSXLの値は新しいHSXLEN値よりも小さく、かつ該当するサポート可能な最大値へと変更される。</p>
 <p><code class="docutils literal notranslate"><span class="pre">hstatus</span></code>のフィールドVTSR, VTW, VTVMは<code class="docutils literal notranslate"><span class="pre">mstatus</span></code>のTSR, TW,
@@ -319,13 +315,13 @@ Address)フィールドはトラップが発生しHSモードに入った場合�
 <h2>5.2.2 ハイパーバイザーTrap移譲レジスタ (hedeleg / hideleg)<a class="headerlink" href="#trap-hedeleg-hideleg" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>はHSXLENビットの読み書き可能なレジスタで、<strong>図5.3</strong>と<strong>図5.4</strong>にそれぞれレジスタのフォーマットを示す。デフォルトでは、すべての特権レベルのすべてのトラップはMモードで処理されるが、通常は<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>CSRレジスタを使用していくつかのトラップをHSモードに移譲する。<code class="docutils literal notranslate"><span class="pre">hedeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>CSRはこれらのトラップをさらにVSモードゲストに移譲することができる;
 これらのレジスタのレイアウトは<code class="docutils literal notranslate"><span class="pre">medeleg</span></code>と<code class="docutils literal notranslate"><span class="pre">mideleg</span></code>のレイアウトと同一である。</p>
-<div class="figure align-default" id="id5">
+<div class="figure align-default" id="id4">
 <img alt="図5.3:ハイパーバイザー例外移譲レジスタ(hedeleg)" src="_images/hedeleg.PNG" />
-<p class="caption"><span class="caption-text">図5.3:ハイパーバイザー例外移譲レジスタ(hedeleg)</span><a class="headerlink" href="#id5" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.3:ハイパーバイザー例外移譲レジスタ(hedeleg)</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id6">
+<div class="figure align-default" id="id5">
 <img alt="図5.4:ハイパーバイザー割り込み移譲レジスタ(hideleg)" src="_images/hideleg.PNG" />
-<p class="caption"><span class="caption-text">図5.4:ハイパーバイザー割り込み移譲レジスタ(hideleg)</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.4:ハイパーバイザー割り込み移譲レジスタ(hideleg)</span><a class="headerlink" href="#id5" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -431,25 +427,25 @@ Address)フィールドはトラップが発生しHSモードに入った場合�
 <div class="section" id="hvip-hip-hie">
 <h2>5.2.3 ハイパーバイザー割り込みレジスタ (hvip, hip, hie)<a class="headerlink" href="#hvip-hip-hie" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">hvip</span></code>はHSXELNビットの読み書き可能なレジスタであり、ハイパーバイザーが該当する仮想割り込みをVSモードのために書き込むことができるかどうかを示す。<code class="docutils literal notranslate"><span class="pre">hideleg</span></code>における書き込み可能なビットは、<code class="docutils literal notranslate"><span class="pre">hvip</span></code>においても同様に書き込み可能であり、そうでないビットは同様に0に固定されている。</p>
-<div class="figure align-default" id="id7">
+<div class="figure align-default" id="id6">
 <img alt="図5.5:ハイパーバイザー仮想割り込みペンディングレジスタ(hvip)" src="_images/hvip.PNG" />
-<p class="caption"><span class="caption-text">図5.5:ハイパーバイザー仮想割り込みペンディングレジスタ(hvip)</span><a class="headerlink" href="#id7" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.5:ハイパーバイザー仮想割り込みペンディングレジスタ(hvip)</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">hvip</span></code>の標準的なビット位置(ビット15:0)のフォーマットを<strong>図5.6</strong>に示す。<code class="docutils literal notranslate"><span class="pre">hvip</span></code>のVSEIP=1に設定することにより、VSレベルの外部割込みがアサートされる;
 VSTIPを設定することにより、VSレベルのタイマー割り込みがアサートされる;
 VSSIP=1に設定することによりVSレベルのソフトウェア割り込みがアサートされる。</p>
-<div class="figure align-default" id="id8">
+<div class="figure align-default" id="id7">
 <img alt="図5.6:hvipの標準的なビット位置" src="_images/hvip_standard_portion.PNG" />
-<p class="caption"><span class="caption-text">図5.6:hvipの標準的なビット位置</span><a class="headerlink" href="#id8" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.6:hvipの標準的なビット位置</span><a class="headerlink" href="#id7" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">hip</span></code>および<code class="docutils literal notranslate"><span class="pre">hie</span></code>レジスタはHSXELNビットの読み書き可能なレジスタであり、HSレベルの<code class="docutils literal notranslate"><span class="pre">sip</span></code>および<code class="docutils literal notranslate"><span class="pre">sie</span></code>レジスタをそれぞれ補完するものである。<code class="docutils literal notranslate"><span class="pre">hip</span></code>レジスタはVSレベルおよびハイパーバイザー固有の割り込みがペンディングしていることを示すレジスタであり、一方で<code class="docutils literal notranslate"><span class="pre">hie</span></code>は割り込みが許可されているかどうかを示している。<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">sie</span></code>は、割り込み<code class="docutils literal notranslate"><span class="pre">i</span></code>は<code class="docutils literal notranslate"><span class="pre">hip</span></code>と<code class="docutils literal notranslate"><span class="pre">hie</span></code>の同じビット<code class="docutils literal notranslate"><span class="pre">i</span></code>が設定され、かつスーパーバイザレベルの割り込みがグローバルに有効化されている場合にはHSモードでトラップされる。</p>
-<div class="figure align-default" id="id9">
+<div class="figure align-default" id="id8">
 <img alt="図5.7:ハイパーバイザー割り込みペンディングレジスタ" src="_images/hip.PNG" />
-<p class="caption"><span class="caption-text">図5.7:ハイパーバイザー割り込みペンディングレジスタ</span><a class="headerlink" href="#id9" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.7:ハイパーバイザー割り込みペンディングレジスタ</span><a class="headerlink" href="#id8" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id10">
+<div class="figure align-default" id="id9">
 <img alt="図5.8:ハイパーバイザー割り込み許可レジスタ(hie)" src="_images/hie.PNG" />
-<p class="caption"><span class="caption-text">図5.8:ハイパーバイザー割り込み許可レジスタ(hie)</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.8:ハイパーバイザー割り込み許可レジスタ(hie)</span><a class="headerlink" href="#id9" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">sie</span></code>における書き込み可能なビットは、<code class="docutils literal notranslate"><span class="pre">hip</span></code>および<code class="docutils literal notranslate"><span class="pre">hie</span></code>においてゼロに固定されている。したがって、<code class="docutils literal notranslate"><span class="pre">sie</span></code>および<code class="docutils literal notranslate"><span class="pre">hie</span></code>のゼロでないビットは常に排他的であり、<code class="docutils literal notranslate"><span class="pre">sip</span></code>および<code class="docutils literal notranslate"><span class="pre">hip</span></code>も同様である。</p>
 <blockquote>
@@ -458,13 +454,13 @@ VSSIP=1に設定することによりVSレベルのソフトウェア割り込�
 <p><code class="docutils literal notranslate"><span class="pre">sie</span></code>の<code class="docutils literal notranslate"><span class="pre">i</span></code>ビットがゼロに固定されている場合、<code class="docutils literal notranslate"><span class="pre">hip</span></code>の同じビットは書き込み可能であるか、読み込み専用である。もし<code class="docutils literal notranslate"><span class="pre">hip</span></code>のビット<code class="docutils literal notranslate"><span class="pre">i</span></code>が書き込み可能である場合、当該ビットに0を書き込むことにより、そのペンディングビットをクリアすることができる。もし割り込み<code class="docutils literal notranslate"><span class="pre">i</span></code>が<code class="docutils literal notranslate"><span class="pre">hip</span></code>のビットを設定することができるものの、<code class="docutils literal notranslate"><span class="pre">hip</span></code>の当該ビットが読み込み専用である場合、<code class="docutils literal notranslate"><span class="pre">hvip</span></code>の当該ビットをクリアするか、Execution
 Environmentコールを含む割り込みペンディングをクリアするためのいくつかのメカニズムを提供することが必要である。</p>
 <p><code class="docutils literal notranslate"><span class="pre">hip</span></code>においてペンディングすることのできるビットは、<code class="docutils literal notranslate"><span class="pre">hie</span></code>においても同じビットは書き込むことができる。<code class="docutils literal notranslate"><span class="pre">hie</span></code>の書き込みできないビットはゼロに固定されている。</p>
-<div class="figure align-default" id="id11">
-<img alt="図5.9:``hip``\ の標準的なビット配置(ビット15:0)" src="_images/hip_standard_portion.PNG" />
-<p class="caption"><span class="caption-text">図5.9:<code class="docutils literal notranslate"><span class="pre">hip</span></code>の標準的なビット配置(ビット15:0)</span><a class="headerlink" href="#id11" title="この画像へのパーマリンク">¶</a></p>
+<div class="figure align-default" id="id10">
+<img alt="図5.9:\ ``hip``\ の標準的なビット配置(ビット15:0)" src="_images/hip_standard_portion.PNG" />
+<p class="caption"><span class="caption-text">図5.9:<code class="docutils literal notranslate"><span class="pre">hip</span></code>の標準的なビット配置(ビット15:0)</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id12">
-<img alt="図5.10:``hie``\ の標準的なビット配置(ビット15:0)" src="_images/hie_standard_portion.PNG" />
-<p class="caption"><span class="caption-text">図5.10:<code class="docutils literal notranslate"><span class="pre">hie</span></code>の標準的なビット配置(ビット15:0)</span><a class="headerlink" href="#id12" title="この画像へのパーマリンク">¶</a></p>
+<div class="figure align-default" id="id11">
+<img alt="図5.10:\ ``hie``\ の標準的なビット配置(ビット15:0)" src="_images/hie_standard_portion.PNG" />
+<p class="caption"><span class="caption-text">図5.10:<code class="docutils literal notranslate"><span class="pre">hie</span></code>の標準的なビット配置(ビット15:0)</span><a class="headerlink" href="#id11" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">hip.SGEIP</span></code>および<code class="docutils literal notranslate"><span class="pre">hip.SGEIE</span></code>はスーパーバイザーレベル(HSレベル)のゲスト外部割込み向けの割り込みペンディングビットおよび割り込み許可ビットである。SGEIPは<code class="docutils literal notranslate"><span class="pre">hip</span></code>においては読み込み専用で、<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>CSRおよび<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>CSRの任意のビットがゼロでない場合の論理積が1である場合にのみ1が設定される。</p>
 <p><code class="docutils literal notranslate"><span class="pre">hip.SSEIP</span></code>および<code class="docutils literal notranslate"><span class="pre">hie.VSEIE</span></code>はVSレベルでの外部割込み向けの割り込みペンディングビットおよび割り込み許可ビットである。VSEIPは<code class="docutils literal notranslate"><span class="pre">hip</span></code>において読み込み専用であり、以下の割り込み要因の論理ORである：</p>
@@ -481,13 +477,13 @@ SSI, STI, SGEI, VSEI, VSSI, VSTI。</p>
 <div class="section" id="hgeiphgeie">
 <h2>5.2.4 ハイパーバイザーゲスト外部割込みレジスタ (<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>および<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>)<a class="headerlink" href="#hgeiphgeie" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">hgeip</span></code>レジスタはHSXLENビットの読み込み専用レジスタであり、<strong>図5.11</strong>に示すビットフォーマットで構成されている。このレジスタは当該HARTにおけるペンディングしていているゲスト外部割込みを示している。<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>レジスタはHSXLENビットの読み書き可能なレジスタであり、<strong>図5.12</strong>に示すビットフォーマットで構成されている。このレジスタは当該HARTにおけるゲスト外部割込みの割り込み許可ビットである。ゲスト外部割込みの要因番号<code class="docutils literal notranslate"><span class="pre">i</span></code>が、<code class="docutils literal notranslate"><span class="pre">hgiep</span></code>と<code class="docutils literal notranslate"><span class="pre">hgeie</span></code>のビット<code class="docutils literal notranslate"><span class="pre">i</span></code>に相当する。</p>
-<div class="figure align-default" id="id13">
+<div class="figure align-default" id="id12">
 <img alt="図5.11:ハイパーバイザーゲスト外部割り込みペンディングレジスタ(hgeip)" src="_images/hgeip.PNG" />
-<p class="caption"><span class="caption-text">図5.11:ハイパーバイザーゲスト外部割り込みペンディングレジスタ(hgeip)</span><a class="headerlink" href="#id13" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.11:ハイパーバイザーゲスト外部割り込みペンディングレジスタ(hgeip)</span><a class="headerlink" href="#id12" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id14">
+<div class="figure align-default" id="id13">
 <img alt="図5.12:ハイパーバイザーゲスト外部割込み許可レジスタ" src="_images/hgeie.PNG" />
-<p class="caption"><span class="caption-text">図5.12:ハイパーバイザーゲスト外部割込み許可レジスタ</span><a class="headerlink" href="#id14" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.12:ハイパーバイザーゲスト外部割込み許可レジスタ</span><a class="headerlink" href="#id13" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p>VSレベルでは、ゲスト外部割込みは個々の仮想マシンに対する割込みとして表現される。RISC-Vプラットフォームが、ハイパーバイザーの介入を最小限にしてゲストOSの直接制御下に物理デバイスを配置することをサポートしている場合(仮想マシンと物理デバイス間のパススルーや直接割り当てと言われている)、そのような状況では、デバイスからの割り込みは特定の仮想マシンを対象としている。<code class="docutils literal notranslate"><span class="pre">hgeip</span></code>の各ビットは、割り込みコントローラが収集して報告した、1つの仮想マシンに向けられた全ての保留中の割り込みをまとめたものである。複数のデバイスからの特定の保留中の割り込みを区別するためには、ソフトウェアは割り込みコントローラに問い合わせなければならない。</p>
 <blockquote>
@@ -503,9 +499,9 @@ SSI, STI, SGEI, VSEI, VSSI, VSTI。</p>
 <div class="section" id="hcounteren">
 <h2>5.2.5 ハイパーバイザーカウンタ許可レジスタ (<code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>)<a class="headerlink" href="#hcounteren" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>カウンタ許可レジスタ<code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>はゲスト仮想マシン向けのハードウェアパフォーマンスモニタリングカウンタの利用可能状態を制御するための32ビットレジスタである。</p>
-<div class="figure align-default" id="id15">
-<img alt="図5.13:ハイパーバイザーカウンタ許可レジスタ(``hcounteren``)" src="_images/hcounteren.PNG" />
-<p class="caption"><span class="caption-text">図5.13:ハイパーバイザーカウンタ許可レジスタ(<code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>)</span><a class="headerlink" href="#id15" title="この画像へのパーマリンク">¶</a></p>
+<div class="figure align-default" id="id14">
+<img alt="図5.13:ハイパーバイザーカウンタ許可レジスタ(\ ``hcounteren``)" src="_images/hcounteren.PNG" />
+<p class="caption"><span class="caption-text">図5.13:ハイパーバイザーカウンタ許可レジスタ(<code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>)</span><a class="headerlink" href="#id14" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">hcounteren</span></code>レジスタのCY、TM、IR、HPMnビットがクリアされている場合、V=1時に<code class="docutils literal notranslate"><span class="pre">cycle</span></code>,
 <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">instret</span></code>,
@@ -518,22 +514,22 @@ SSI, STI, SGEI, VSEI, VSSI, VSTI。</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>と<code class="docutils literal notranslate"><span class="pre">time</span></code>の加算におけるオーバーフローは無視されるため、<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>の値が大きくなると、タイムオフセットの負の値して取り扱われる。</p>
 </div></blockquote>
-<div class="figure align-default" id="id16">
+<div class="figure align-default" id="id15">
 <img alt="図5.14:ハイパーバイザータイムデルタレジスタ, HSXLEN=64" src="_images/htimedelta.PNG" />
-<p class="caption"><span class="caption-text">図5.14:ハイパーバイザータイムデルタレジスタ, HSXLEN=64</span><a class="headerlink" href="#id16" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.14:ハイパーバイザータイムデルタレジスタ, HSXLEN=64</span><a class="headerlink" href="#id15" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p>HSXLEN=32では、<code class="docutils literal notranslate"><span class="pre">htimedelta</span></code>はデルタ値の下位32ビットを保持している。<code class="docutils literal notranslate"><span class="pre">htimedeltah</span></code>はデルタ値の上位32ビットを保持している。</p>
-<div class="figure align-default" id="id17">
+<div class="figure align-default" id="id16">
 <img alt="図5.15:HSXLEN=64時のハイパーバイザータイムデルタレジスタ" src="_images/htimedelta_32bit.PNG" />
-<p class="caption"><span class="caption-text">図5.15:HSXLEN=64時のハイパーバイザータイムデルタレジスタ</span><a class="headerlink" href="#id17" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.15:HSXLEN=64時のハイパーバイザータイムデルタレジスタ</span><a class="headerlink" href="#id16" title="この画像へのパーマリンク">¶</a></p>
 </div>
 </div>
 <div class="section" id="htval">
 <h2>5.2.7 ハイパーバイザートラップ値レジスタ(<code class="docutils literal notranslate"><span class="pre">htval</span></code>)<a class="headerlink" href="#htval" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">htval</span></code>レジスタはHSXLENビットの読み書き可能なレジスタで、<strong>図5.16</strong>に示すフォーマットで構成されている。トラップによりHSモードに入ると、<code class="docutils literal notranslate"><span class="pre">stval</span></code>と一緒に<code class="docutils literal notranslate"><span class="pre">htval</span></code>に例外要因固有の情報が書き込まれ、ソフトウェアがトラップを処理するために使用される。</p>
-<div class="figure align-default" id="id18">
+<div class="figure align-default" id="id17">
 <img alt="図5.16:ハイパーバイザートラップ値レジスタ(htval)" src="_images/htval.PNG" />
-<p class="caption"><span class="caption-text">図5.16:ハイパーバイザートラップ値レジスタ(htval)</span><a class="headerlink" href="#id18" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.16:ハイパーバイザートラップ値レジスタ(htval)</span><a class="headerlink" href="#id17" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p>ゲストページフォルト例外によりHSモードに移行した場合、<code class="docutils literal notranslate"><span class="pre">htval</span></code>にはゼロもしくは例外の発生したゲスト物理アドレスを2ビット右にシフトした値が書き込まれる。他の例外では、<code class="docutils literal notranslate"><span class="pre">htval</span></code>の値はゼロに設定されるが、将来の仕様アップデートや他の拡張によって<code class="docutils literal notranslate"><span class="pre">htval</span></code>の挙動が異なる可能性がある。</p>
 <p>ゲストページフォルト例外は第1ステージ(VSステージ)のアドレス変換による暗黙的なメモリアクセスにより発生する可能性があるが、この場合には<code class="docutils literal notranslate"><span class="pre">htval</span></code>に書き込まれるゲスト物理アドレスは、例外の発生した暗黙的なメモリアクセスのアドレスとなる。例えば、VSレベルのページテーブルエントリのメモリ読み込みに失敗した場合などである。(VSステージでの変換が完了しなかった場合、オリジナルの仮想アドレスに相当するゲスト物理アドレスは未知である。)このような状態における曖昧さを削減するための更なる情報として<code class="docutils literal notranslate"><span class="pre">htinst</span></code>CSRが使用される。</p>
@@ -549,16 +545,16 @@ SSI, STI, SGEI, VSEI, VSSI, VSTI。</p>
 </div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">htval</span></code>は<strong>WARL</strong>レジスタであり、ゼロを保持していなければならず、ゲスト物理アドレスの2ビットシフトされたサブセットのみを保持することができる。</p>
 <blockquote>
-<div><p>(プラットフォーム標準などの)他の理由がない限り、ソフトウェアにより<code class="docutils literal notranslate"><span class="pre">htval</span></code>を書き込んだ場合にはその値が<code class="docutils literal notranslate"><span class="pre">htval</span></code>からリードバックできなければならない。</p>
+<div><p>(プラットフォーム標準などの)他の理由がない限り、ソフトウェアにより``htval``を書き込んだ場合にはその値が<code class="docutils literal notranslate"><span class="pre">htval</span></code>からリードバックできなければならない。</p>
 </div></blockquote>
 </div>
 <div class="section" id="htinst">
 <h2>5.2.8 ハイパーバイザ―トラップ命令レジスタ (<code class="docutils literal notranslate"><span class="pre">htinst</span></code>)<a class="headerlink" href="#htinst" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">htinst</span></code>レジスタはHSXLENビットの読み書き可能なレジスタであり、<strong>図5.17</strong>に示されるビットフォーマットで構成されている。トラップが発生しHSモードに移行した場合、<code class="docutils literal notranslate"><span class="pre">htinst</span></code>はゼロでない場合例外の発生した命令の情報を保持しており、ソフトウェアによりトラップを処理するのを助ける役割を持っている。<code class="docutils literal notranslate"><span class="pre">htinst</span></code>に書き込まれる値に抜いてはSection
 5.6.3で説明している。</p>
-<div class="figure align-default" id="id19">
+<div class="figure align-default" id="id18">
 <img alt="図5.17:ハイパーバイザートラップ命令レジスタ" src="_images/htinst.PNG" />
-<p class="caption"><span class="caption-text">図5.17:ハイパーバイザートラップ命令レジスタ</span><a class="headerlink" href="#id19" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.17:ハイパーバイザートラップ命令レジスタ</span><a class="headerlink" href="#id18" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">htinst</span></code>は<strong>WARL</strong>レジスタであり、実装がトラップ発生時に自動的に書き込んだ値を保持しておかなければならない。</p>
 </div>
@@ -568,9 +564,9 @@ SSI, STI, SGEI, VSEI, VSSI, VSTI。</p>
 <p><strong>表5.3</strong>はRV32とRV64におけるMODEフィールドのエンコーディングを示している。MODE=Bareでは、ゲスト物理アドレスはスーパーバイザー物理アドレスと同一であり、<strong>3.6節</strong>で示すようにゲスト仮想マシンと物理メモリ保護については追加的な保護は存在しない。この場合には、<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のほかのフィールドはゼロに設定していなければならない。</p>
 <p>RV32では、MODEの有効な設定はSv32x4のみである。このモードでは通常のSv32ページ仮想メモリ方式を修正したもので、34ビットゲスト物理アドレスをサポートするために拡張したものである。RV64ではSv39x4およびSv48x4が定義されており、これはSv39およびSv49ページ仮想メモリ方式を修正したものである。これらのすべてのページ仮想メモリ方式については<strong>5.5.1節</strong>で説明している。RV64でさらに追加されている方式としてSv57x4が定義されており、これは仕様書の今後のバージョンで定義される予定である。</p>
 <p>RV64におけるMODEフィールドの他の値については将来のために予約されており、<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>の他のフィールドの異なる解釈のために使用される予定である。</p>
-<div class="figure align-default" id="id20">
+<div class="figure align-default" id="id19">
 <img alt="表5.3:hgatp MODEフィールドのエンコーディング" src="_images/hgatp_mode.PNG" />
-<p class="caption"><span class="caption-text">表5.3:hgatp MODEフィールドのエンコーディング</span><a class="headerlink" href="#id20" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">表5.3:hgatp MODEフィールドのエンコーディング</span><a class="headerlink" href="#id19" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p>RV64の実装では、すべてのRV64 MODE設定をサポートする必要はない。</p>
 <p><code class="docutils literal notranslate"><span class="pre">hgatp</span></code>におけるサポートされないMODEの書き込みは、<code class="docutils literal notranslate"><span class="pre">satp</span></code>のように無視されない。その代わり、<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のフィールドは<strong>WARL</strong>フィールドであり、そのような書き込みが発生した場合は識別される。</p>
@@ -587,13 +583,13 @@ Sv48x4)では、ルートページテーブルは16kiBであり16KiB協会にア
 <div class="section" id="vsstatus">
 <h2>5.2.10 仮想スーパーバイザーステータスレジスタ (<code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>)<a class="headerlink" href="#vsstatus" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>レジスタはVSXLENビットの読み書き可能なレジスタであり、VSモードでのスーパーバイザーステータス<code class="docutils literal notranslate"><span class="pre">sstatus</span></code>である。<strong>図5.20</strong>にVSXLEN=32でのビットフォーマット、<strong>図5.21</strong>にVSXLEN=64でのビットフォーマットを示す。V=1の場合に、<code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>は<code class="docutils literal notranslate"><span class="pre">sstatus</span></code>の代替の役目を担い、従って<code class="docutils literal notranslate"><span class="pre">sstatus</span></code>を読み書きする命令はすべて<code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>に置き換えられる。</p>
-<div class="figure align-default" id="id21">
+<div class="figure align-default" id="id20">
 <img alt="図5.20:RV32向け仮想スーパーバイザーステータスレジスタ(vsstatus)" src="_images/vsstatus_32.PNG" />
-<p class="caption"><span class="caption-text">図5.20:RV32向け仮想スーパーバイザーステータスレジスタ(vsstatus)</span><a class="headerlink" href="#id21" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.20:RV32向け仮想スーパーバイザーステータスレジスタ(vsstatus)</span><a class="headerlink" href="#id20" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id22">
+<div class="figure align-default" id="id21">
 <img alt="図5.21:RV64向け仮想スーパーバイザーステータスレジスタ(vsstatus)" src="_images/vsstatus_64.PNG" />
-<p class="caption"><span class="caption-text">図5.21:RV64向け仮想スーパーバイザーステータスレジスタ(vsstatus)</span><a class="headerlink" href="#id22" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.21:RV64向け仮想スーパーバイザーステータスレジスタ(vsstatus)</span><a class="headerlink" href="#id21" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p>UXLフィールドはVUモードでのXLEN値を制御しており、VSモードでのXLEN値(VSXLEN)とは異なる可能性がある。VSXLEN=32の場合、UXLフィールドは存在せず、VUモードでのXLEN=32である。VSXLEN=64の場合はUXLフィールドは<strong>WARL</strong>フィールドであり、16ページの<strong>表3.1</strong>における<code class="docutils literal notranslate"><span class="pre">misa</span></code>レジスタにおけるMXLのエンコーディングと同様である。特に、実装によってはUXLを読み込み専用フィールドとし、<code class="docutils literal notranslate"><span class="pre">hstatuts</span></code>のVSXLフィールドをコピーすることで強制的にVUモードにおいてXLEN=VSXLENとすることもできる。</p>
 <p>VSXLENが32よりも大きな値に変更されると、UXLは単一の値に制限されなくなり、新しいVSXLENよりも小さな最も大きなサポート可能な値に変更される。</p>
@@ -608,22 +604,22 @@ Sv48x4)では、ルートページテーブルは16kiBであり16KiB協会にア
 <div class="section" id="vsip-vsie">
 <h2>5.2.11 仮想スーパーバイザー割り込みレジスタ (<code class="docutils literal notranslate"><span class="pre">vsip</span></code>, <code class="docutils literal notranslate"><span class="pre">vsie</span></code>)<a class="headerlink" href="#vsip-vsie" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vsip</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie</span></code>はVSXLENビットの読み書き可能なレジスタで、<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">sie</span></code>レジスタのVSモード版である。それぞれのビットフォーマットを<strong>図5.22</strong>および<strong>図5.23</strong>に示す。V=1の時、<code class="docutils literal notranslate"><span class="pre">vsip</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie</span></code>は<code class="docutils literal notranslate"><span class="pre">sip</span></code>と<code class="docutils literal notranslate"><span class="pre">sie</span></code>の代替であり、<code class="docutils literal notranslate"><span class="pre">sip</span></code>および<code class="docutils literal notranslate"><span class="pre">sie</span></code>に対して読み書きを行う命令は、これらの命令に対する読み書きに置き換わる。しかし、HSレベルに挿入される割込みは引き続きHSレベルの<code class="docutils literal notranslate"><span class="pre">sip</span></code>レジスタが使用され、V=1の場合でも<code class="docutils literal notranslate"><span class="pre">vsip</span></code>は使用されない。</p>
-<div class="figure align-default" id="id23">
+<div class="figure align-default" id="id22">
 <img alt="図5.22:仮想スーパーバイザー割り込みペンデングレジスタ(vsip)" src="_images/vsip.PNG" />
-<p class="caption"><span class="caption-text">図5.22:仮想スーパーバイザー割り込みペンデングレジスタ(vsip)</span><a class="headerlink" href="#id23" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.22:仮想スーパーバイザー割り込みペンデングレジスタ(vsip)</span><a class="headerlink" href="#id22" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id24">
+<div class="figure align-default" id="id23">
 <img alt="図5.23:仮想スーパーバイザー割り込み許可レジスタ(vsie)" src="_images/vsie.PNG" />
-<p class="caption"><span class="caption-text">図5.23:仮想スーパーバイザー割り込み許可レジスタ(vsie)</span><a class="headerlink" href="#id24" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.23:仮想スーパーバイザー割り込み許可レジスタ(vsie)</span><a class="headerlink" href="#id23" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">vsip</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie</span></code>の標準的なビット配置(ビット15:0)を<strong>図5.24</strong>と<strong>図5.25</strong>に示す。</p>
-<div class="figure align-default" id="id25">
+<div class="figure align-default" id="id24">
 <img alt="図5.24:vsipの標準的なビット配置" src="_images/vsip_standard.PNG" />
-<p class="caption"><span class="caption-text">図5.24:vsipの標準的なビット配置</span><a class="headerlink" href="#id25" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.24:vsipの標準的なビット配置</span><a class="headerlink" href="#id24" title="この画像へのパーマリンク">¶</a></p>
 </div>
-<div class="figure align-default" id="id26">
+<div class="figure align-default" id="id25">
 <img alt="図5.24:vsieの標準的なビット配置" src="_images/vsie_standard.PNG" />
-<p class="caption"><span class="caption-text">図5.24:vsieの標準的なビット配置</span><a class="headerlink" href="#id26" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.24:vsieの標準的なビット配置</span><a class="headerlink" href="#id25" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">hideleg</span></code>のビット10が0の場合、<code class="docutils literal notranslate"><span class="pre">vsip.SEIP</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie.SEIE</span></code>はゼロに固定されている。そうでなければ、<code class="docutils literal notranslate"><span class="pre">vsip.SEIP</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie.SEIE</span></code>は<code class="docutils literal notranslate"><span class="pre">hip.VSEIP</span></code>と<code class="docutils literal notranslate"><span class="pre">hie.VSEIE</span></code>のエイリアスである。</p>
 <p><code class="docutils literal notranslate"><span class="pre">hideleg</span></code>のビット6が0の場合、<code class="docutils literal notranslate"><span class="pre">vsip.STIP</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie.STIE</span></code>はゼロに固定されている。そうでなければ、<code class="docutils literal notranslate"><span class="pre">vsip.STIP</span></code>と<code class="docutils literal notranslate"><span class="pre">vsie.STIE</span></code>は<code class="docutils literal notranslate"><span class="pre">hip.VSTIP</span></code>と<code class="docutils literal notranslate"><span class="pre">hie.VSTIE</span></code>のエイリアスである。</p>
@@ -670,9 +666,9 @@ Spikeにおける<code class="docutils literal notranslate"><span class="pre">vs
 <div class="section" id="vstvec">
 <h2>5.2.12 仮想スーパーバイザートラップベクタベースアドレスレジスタ (<code class="docutils literal notranslate"><span class="pre">vstvec</span></code>)<a class="headerlink" href="#vstvec" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vstvec</span></code>レジスタはVSXLENビットの読み書き可能なレジスタであり、スーパーバイザーレジスタ<code class="docutils literal notranslate"><span class="pre">stvec</span></code>のVSモード版である。ビットフォーマットを<strong>図5.26</strong>に示す。V=1の場合、<code class="docutils literal notranslate"><span class="pre">vstvec</span></code>は通常の<code class="docutils literal notranslate"><span class="pre">stvec</span></code>の代替となり、通常の<code class="docutils literal notranslate"><span class="pre">stvec</span></code>への読み書きを行う命令は<code class="docutils literal notranslate"><span class="pre">vstvec</span></code>への読み書きへと置き換えられる。V=0の場合は<code class="docutils literal notranslate"><span class="pre">vstvec</span></code>はマシンの動作には一切影響を与えない。</p>
-<div class="figure align-default" id="id27">
+<div class="figure align-default" id="id26">
 <img alt="図5.26:仮想スーパーバイザートラップベクタベースアドレスレジスタ" src="_images/vstvec.PNG" />
-<p class="caption"><span class="caption-text">図5.26:仮想スーパーバイザートラップベクタベースアドレスレジスタ</span><a class="headerlink" href="#id27" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.26:仮想スーパーバイザートラップベクタベースアドレスレジスタ</span><a class="headerlink" href="#id26" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <hr class="docutils" />
 <p>メモ：Spikeにおける<code class="docutils literal notranslate"><span class="pre">vstvec</span></code>の動作</p>
@@ -709,9 +705,9 @@ Spikeにおける<code class="docutils literal notranslate"><span class="pre">vs
 <div class="section" id="vsscratch">
 <h2>5.2.13 仮想スーパーバイザースクラッチレジスタ (<code class="docutils literal notranslate"><span class="pre">vsscratch</span></code>)<a class="headerlink" href="#vsscratch" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vsscratch</span></code>レジスタはVSXLENビットの読み書き可能なレジスタであり、スーパーバイザーモードの<code class="docutils literal notranslate"><span class="pre">sscrtach</span></code>のVSモードにおける大体である。ビットフォーマットを<strong>図5.27</strong>に示す。V=1の時、<code class="docutils literal notranslate"><span class="pre">vsscratch</span></code>は<code class="docutils literal notranslate"><span class="pre">sscratch</span></code>の代替であり、従って通常の<code class="docutils literal notranslate"><span class="pre">sscratch</span></code>へのアクセス命令は<code class="docutils literal notranslate"><span class="pre">vsscratch</span></code>に置き換えられる。<code class="docutils literal notranslate"><span class="pre">vsscratch</span></code>の値はマシンの動作に直接影響を与えない。</p>
-<div class="figure align-default" id="id28">
+<div class="figure align-default" id="id27">
 <img alt="図5.27:仮想スーパーバイザースクラッチレジスタ(vsscratch)" src="_images/vsscratch.PNG" />
-<p class="caption"><span class="caption-text">図5.27:仮想スーパーバイザースクラッチレジスタ(vsscratch)</span><a class="headerlink" href="#id28" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.27:仮想スーパーバイザースクラッチレジスタ(vsscratch)</span><a class="headerlink" href="#id27" title="この画像へのパーマリンク">¶</a></p>
 </div>
 </div>
 <div class="section" id="vsepc">
@@ -722,26 +718,26 @@ Spikeにおける<code class="docutils literal notranslate"><span class="pre">vs
 <h2>5.2.15 仮想スーパーバイザー要因レジスタ (<code class="docutils literal notranslate"><span class="pre">vscause</span></code>)<a class="headerlink" href="#vscause" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vscause</span></code>レジスタはVSXLENビットの読み書き可能なレジスタであり、スーパーバイザーモードの<code class="docutils literal notranslate"><span class="pre">scause</span></code>レジスタのVSモードでの代替である。ビットフォーマットを<strong>図5.29</strong>に示す。V=1の場合、<code class="docutils literal notranslate"><span class="pre">vscause</span></code>は通常の<code class="docutils literal notranslate"><span class="pre">scause</span></code>のように動作するため、<code class="docutils literal notranslate"><span class="pre">scause</span></code>へのアクセス命令は<code class="docutils literal notranslate"><span class="pre">vscause</span></code>へのアクセスへ置き換えられる。V=0の場合、<code class="docutils literal notranslate"><span class="pre">vscause</span></code>はマシンの動作に影響を与えない。</p>
 <p><code class="docutils literal notranslate"><span class="pre">vscause</span></code>は<strong>WLRL</strong>レジスタのため、<code class="docutils literal notranslate"><span class="pre">scause</span></code>が保持することのできる値と同様の値を保持できなければならない。</p>
-<div class="figure align-default" id="id29">
+<div class="figure align-default" id="id28">
 <img alt="図5.29:仮想スーパーバイザー要因レジスタ(vscause)" src="_images/vscause.PNG" />
-<p class="caption"><span class="caption-text">図5.29:仮想スーパーバイザー要因レジスタ(vscause)</span><a class="headerlink" href="#id29" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.29:仮想スーパーバイザー要因レジスタ(vscause)</span><a class="headerlink" href="#id28" title="この画像へのパーマリンク">¶</a></p>
 </div>
 </div>
 <div class="section" id="vstval">
 <h2>5.2.16 仮想スーパーバイザートラップ値レジスタ (<code class="docutils literal notranslate"><span class="pre">vstval</span></code>)<a class="headerlink" href="#vstval" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vstval</span></code>レジスタはVSXLENビットの読み書き可能なレジスタであり、スーパーバイザーモードの<code class="docutils literal notranslate"><span class="pre">stval</span></code>レジスタのVSモードでの代替である。ビットフォーマットを<strong>図5.30</strong>に示す。V=1の時、<code class="docutils literal notranslate"><span class="pre">vstval</span></code>は通常の<code class="docutils literal notranslate"><span class="pre">stval</span></code>のように動作するため、<code class="docutils literal notranslate"><span class="pre">stval</span></code>へのアクセス命令は<code class="docutils literal notranslate"><span class="pre">vstval</span></code>へのアクセスへ置き換えられる。V=0の場合、<code class="docutils literal notranslate"><span class="pre">vstval</span></code>はマシンの動作に影響を与えない。</p>
 <p><code class="docutils literal notranslate"><span class="pre">vstval</span></code>は<strong>WARL</strong>レジスタのため、<code class="docutils literal notranslate"><span class="pre">stval</span></code>が保持することのできる値と同様の値を保持できなければならない。</p>
-<div class="figure align-default" id="id30">
+<div class="figure align-default" id="id29">
 <img alt="図5.30:仮想スーパーバイザートラップ値レジスタ(vstval)" src="_images/vstval.PNG" />
-<p class="caption"><span class="caption-text">図5.30:仮想スーパーバイザートラップ値レジスタ(vstval)</span><a class="headerlink" href="#id30" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.30:仮想スーパーバイザートラップ値レジスタ(vstval)</span><a class="headerlink" href="#id29" title="この画像へのパーマリンク">¶</a></p>
 </div>
 </div>
 <div class="section" id="vsatp">
 <h2>5.2.17 仮想スーパーバイザーアドレス変換および保護レジスタ (<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>)<a class="headerlink" href="#vsatp" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">vsatp</span></code>レジスタはVSXLENビットの読み書き可能なレジスタであり、スーパーバイザーモードの<code class="docutils literal notranslate"><span class="pre">satp</span></code>レジスタのVSモードでの代替である。<strong>図5.31</strong>にVSXLEN=32のビットフォーマットを、<strong>図5.32</strong>にVSXLEN=64のビットフォーマットを示す。V=1の時、<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>レジスタは<code class="docutils literal notranslate"><span class="pre">satp</span></code>レジスタの代替であり、従って通常の<code class="docutils literal notranslate"><span class="pre">satp</span></code>レジスタへの読み書き命令は<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>への読み書きに置き換えられる。<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>レジスタはゲスト仮想アドレスの2ステージ変換における最初のステージであるVSステージのアドレス変換を制御する(<strong>5.5節</strong>を参照のこと)。</p>
-<div class="figure align-default" id="id31">
+<div class="figure align-default" id="id30">
 <img alt="図5.31:RV32時の仮想スーパーバイザーアドレス変換及び保護レジスタ(vsatp)" src="_images/vsatp_rv32.PNG" />
-<p class="caption"><span class="caption-text">図5.31:RV32時の仮想スーパーバイザーアドレス変換及び保護レジスタ(vsatp)</span><a class="headerlink" href="#id31" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">図5.31:RV32時の仮想スーパーバイザーアドレス変換及び保護レジスタ(vsatp)</span><a class="headerlink" href="#id30" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <p>V=0の場合、<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>へのサポートされないMODE値を書き込むと、<code class="docutils literal notranslate"><span class="pre">satp</span></code>レジスタのように無視されるわけではない。その代わりに、<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>へのこのような書き込みは<strong>WARL</strong>として取り扱われる。</p>
 <p>V=0の場合、<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>はマシンの動作に直接影響を与えない。ただし仮想マシンのロードストア命令(HLV,
@@ -771,9 +767,9 @@ STLは1が設定される。</p></li>
 </ul>
 </li>
 </ul>
-<div class="figure align-default" id="id32">
+<div class="figure align-default" id="id31">
 <img alt="1540737909818" src="_images/hypervisor_SPRV.PNG" />
-<p class="caption"><span class="caption-text">1540737909818</span><a class="headerlink" href="#id32" title="この画像へのパーマリンク">¶</a></p>
+<p class="caption"><span class="caption-text">1540737909818</span><a class="headerlink" href="#id31" title="この画像へのパーマリンク">¶</a></p>
 </div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">hedeleg,</span> <span class="pre">hideleg</span></code>レジスタはHypervisor向けの移譲レジスタである。</p></li>

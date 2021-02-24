@@ -165,13 +165,13 @@
 <h1>5.5 2ステージアドレス変換<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>現在の仮想モードVが1であるときは常に2ステージアドレス変換と保護が有効である。すべての仮想メモリアクセスにおいて、オリジナルの仮想アドレスは<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>レジスタにより制御されるVSレベルアドレス変換によって最初のステージで変換され、<strong>ゲスト物理アドレス</strong>となる。ゲスト物理アドレスは次に<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>レジスタにより制御されるゲスト物理アドレスに変換され、スーパーバイザー物理アドレスに変換される。この2つのステージはVSステージ変換とGステージ変換と呼ばれる。V=1の際にこれらの2ステージアドレス変換を無効化する方法はないが、該当する<code class="docutils literal notranslate"><span class="pre">vsatp</span></code>か<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のレジスタをゼロに設定することにより効率的にどちらかの変換を無効化することができる。</p>
 <p><code class="docutils literal notranslate"><span class="pre">vsstatus</span></code>のMXRフィールドは実行可能フラグのみ設定されているページを読み込み可能にすることができるが、これはVSステージのページ保護にのみ有効である。VSレベルでのMXRの設定はゲスト物理ページ保護の設定をオーバーライドしない。HSレベルでのMXRの設定では、VSステージとGステージ両方の実行可能フラグについてオーバーライドされる。</p>
-<p>V=1では、アドレス変換を通常バイパスするメモリアクセスはGステージのアドレス変換のみを実行する目的がある。これはｖSレベルのページの読み書きなど、VSステージアドレス変換のサポートも含まれる。</p>
+<p>V=1では、アドレス変換を通常バイパスするメモリアクセスはGステージのアドレス変換のみを実行する目的がある。これはVSレベルのページの読み書きなど、VSステージアドレス変換のサポートも含まれる。</p>
 <p>マシンレベルの物理メモリ保護については仮想モードの状態に関係なくスーパーバイザ物理アドレスにも適用される。</p>
 <div class="section" id="id2">
 <h2>5.5.1 ゲスト物理アドレス変換<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>ゲスト物理アドレスからスーパーバイザー物理アドレスへの変換は、<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>(<strong>5.2.9節</strong>)
 CSRレジスタにより制御される。</p>
-<p>アドレス変換のすーきーむである<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のMODEフィールドでBareが設定されている場合、ゲスト物理アドレスとスーパーバイザー物理アドレスは全く変換されず同一であり、ゲスト物理アドレスからスーパーバイザ物理アドレスの変換中にメモリ保護は適用されない。</p>
+<p>アドレス変換のスキームである<code class="docutils literal notranslate"><span class="pre">hgatp</span></code>のMODEフィールドでBareが設定されている場合、ゲスト物理アドレスとスーパーバイザー物理アドレスは全く変換されず同一であり、ゲスト物理アドレスからスーパーバイザ物理アドレスの変換中にメモリ保護は適用されない。</p>
 <p><code class="docutils literal notranslate"><span class="pre">hgatp.MODE</span></code>がSv32x4, Sv39x4,
 Sv48v4が選択されたとき、Gステージアドレス変換は通常の仮想アドレス変換のスキームであるSv32,
 Sv39,
