@@ -158,3 +158,161 @@ void processor_t::take_trap(trap_t& t, reg_t epc)
     state.v = virt;
 ```
 
+# 2ステージアドレス変換
+
+仮想化モードが設定されている場合、RISC-Vのアドレス変換は2ステージを踏むことになっている。
+
+1. VSレベルアドレス変換：**仮想アドレス** → **ゲスト物理アドレス**
+2. Gレベルアドレス変換：**ゲスト物理アドレス** → **スーパーバイザー物理アドレス**
+
+まずは**VSレベルアドレス変換**は
+
+- ベースアドレスレジスタは`vsatp`で制御される
+
+次は**Gレベルアドレス変換**は、
+
+- ベースアドレス変換は`hgatp`で制御される
+
+という前提条件を踏まえて、Spikeがどのようにアドレス変換を行っているのか探ってみる。
+
+まずは基本的なロード命令から巡っていくことにする。`ld`命令の定義は以下でなされている。
+
+- `riscv-isa-sim/riscv/insns/ld.h`
+
+```cpp
+require_rv64;
+WRITE_RD(MMU.load_int64(RS1 + insn.i_imm()));
+```
+
+`MMU.load_int64()`という関数は実は`define`マクロで定義されていて、`mmu.h`の中を探しても見当たらないので最初は焦る。正しい場所はこちら。
+
+- `riscv-isa-sim/riscv/mmu.h`
+
+```cpp
+  // template for functions that load an aligned value from memory
+  #define load_func(type, prefix, xlate_flags) \
+    inline type##_t prefix##_##type(reg_t addr, bool require_alignment = false) { \
+      if ((xlate_flags) != 0) \
+        flush_tlb(); \
+      if (unlikely(addr & (sizeof(type##_t)-1))) { \
+        if (require_alignment) load_reserved_address_misaligned(addr); \
+/* ... 以下略 ... */
+
+  // load value from memory at aligned address; zero extend to register width
+  load_func(uint8, load, 0)
+  load_func(uint16, load, 0)
+  load_func(uint32, load, 0)
+  load_func(uint64, load, 0)
+      
+  // load value from guest memory at aligned address; zero extend to register width
+  load_func(uint8, guest_load, RISCV_XLATE_VIRT)
+  load_func(uint16, guest_load, RISCV_XLATE_VIRT)
+  load_func(uint32, guest_load, RISCV_XLATE_VIRT)
+  load_func(uint64, guest_load, RISCV_XLATE_VIRT)
+  load_func(uint16, guest_load_x, RISCV_XLATE_VIRT|RISCV_XLATE_VIRT_MXR)
+  load_func(uint32, guest_load_x, RISCV_XLATE_VIRT|RISCV_XLATE_VIRT_MXR)
+
+  // load value from memory at aligned address; sign extend to register width
+  load_func(int8, load, 0)
+  load_func(int16, load, 0)
+  load_func(int32, load, 0)
+  load_func(int64, load, 0)
+
+  // load value from guest memory at aligned address; sign extend to register width
+  load_func(int8, guest_load, RISCV_XLATE_VIRT)
+  load_func(int16, guest_load, RISCV_XLATE_VIRT)
+  load_func(int32, guest_load, RISCV_XLATE_VIRT)
+  load_func(int64, guest_load, RISCV_XLATE_VIRT)
+```
+
+ここにきていくつかのロード命令のバリエーションがあることに気が付いた。`RISCV_XLATE_VIRT`とか、`guest_load`とかの意味は何だろう？`guest_load_int16()`とかは`HLV.H`命令で使用されているのは理解できる。
+
+- `riscv-isa-sim/riscv/insns/hlv_h.h`
+
+```cpp
+require_extension('H');
+require_novirt();
+require_privilege(get_field(STATE.hstatus, HSTATUS_HU) ? PRV_U : PRV_S);
+WRITE_RD(MMU.guest_load_int16(RS1));
+```
+
+とりあえず先に進もう。アドレス変換についてはMMUのPage Table Walkの部分に記述があるのでそれを眺めていく。
+
+- `riscv-isa-sim/riscv/mmu.h`
+
+```cpp
+  // perform a page table walk for a given VA; set referenced/dirty bits
+  reg_t walk(reg_t addr, access_type type, reg_t prv, bool virt, bool mxr);
+```
+
+- `riscv-isa-sim/riscv/mmu.cc`
+
+```cpp
+reg_t mmu_t::walk(reg_t addr, access_type type, reg_t mode, bool virt, bool mxr)
+{
+  reg_t page_mask = (reg_t(1) << PGSHIFT) - 1;
+  reg_t satp = (virt) ? proc->get_state()->vsatp : proc->get_state()->satp;
+  vm_info vm = decode_vm_info(proc->max_xlen, false, mode, satp);
+  if (vm.levels == 0)
+    return s2xlate(addr, addr & ((reg_t(2) << (proc->xlen-1))-1), type, type, virt, mxr) & ~page_mask; // zero-extend from xlen
+
+```
+
+まず、VSアドレスレベル変換についてだ。これは先ほど説明したようにVSアドレスレベル変換の場合はVSATPレジスタをベースアドレスとするので、その条件で`satp`レジスタの指定が切り替わっている。
+
+`vm.info`についてはSATPレジスタのMODEレジスタの内容に応じてどの変換方式を採用するかを決定している。上記で言えば`vm.levels=0`の場合はBAREモード変換だと思われるので、アドレス変換は行わずそのまま仮想アドレスを物理アドレスとして取り扱っていることが分かる。
+
+そこから先がアドレス変換のためのページジャンプで、これは`for`文でPTEを次々と呼び出しながらページをジャンプして最終的なゲスト物理アドレスに到達していることが分かる。
+
+```cpp
+  reg_t base = vm.ptbase;
+  for (int i = vm.levels - 1; i >= 0; i--) {
+    int ptshift = i * vm.idxbits;
+    reg_t idx = (addr >> (PGSHIFT + ptshift)) & ((1 << vm.idxbits) - 1);
+
+    // check that physical address of PTE is legal
+/* ... 中略 ... */
+```
+
+最終的にゲスト物理アドレスに到達したら、おそらく`s2xlate()`によりゲスト物理アドレスからスーパバイザ物理アドレスへの変換を行っているものと思われる。
+
+```cpp
+/* ... 中略 ... */
+      reg_t page_base = ((ppn & ~((reg_t(1) << napot_bits) - 1))
+                        | (vpn & ((reg_t(1) << napot_bits) - 1))
+                        | (vpn & ((reg_t(1) << ptshift) - 1))) << PGSHIFT;
+      reg_t phys = page_base | (addr & page_mask);
+      return s2xlate(addr, phys, type, type, virt, mxr) & ~page_mask;
+    }
+  }
+```
+
+おそらく正解だ。`s2xlate()`はベースアドレスをHGATPレジスタとしているアドレス変換で、変換方式そのものは通常のアドレス変換と大差ない。
+
+```cpp
+reg_t mmu_t::s2xlate(reg_t gva, reg_t gpa, access_type type, access_type trap_type, bool virt, bool mxr)
+{
+  if (!virt)
+    return gpa;
+
+  // ベースアドレスレジスタとしてHGATPを使用していることが分かる。
+  vm_info vm = decode_vm_info(proc->max_xlen, true, 0, proc->get_state()->hgatp);
+  if (vm.levels == 0)
+    return gpa;
+/* ... 中略 ... */
+```
+
+同じようにしてページテーブルのジャンプを繰り返していくことで、最終的な物理アドレスに到達していることが分かった。
+
+```cpp
+/* ... 中略 ... */
+		break;
+
+      reg_t page_base = ((ppn & ~((reg_t(1) << napot_bits) - 1))
+                        | (vpn & ((reg_t(1) << napot_bits) - 1))
+                        | (vpn & ((reg_t(1) << ptshift) - 1))) << PGSHIFT;
+      return page_base | (gpa & page_mask);
+    }
+  }
+```
+
