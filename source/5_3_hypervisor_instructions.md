@@ -16,89 +16,6 @@ HLVXはマシンレベルの物理メモリ保護(PMP)をオーバーライド�
 
 V=1の時に仮想マシンロード・ストア命令(HLV, HLVX, HSV)を実行しようとすると仮想命令例外が発生する。`hstatus.HU=0`時のUモードで同様の命令を実行しようとすると不正命令例外が発生する。
 
----
-
-メモ：Spikeの`HLV.B`の実装を確認すると、以下のようになっていた。
-
-- `HLV.B`
-
-```cpp
-require_extension('H');
-require_novirt();
-require_privilege(get_field(STATE.hstatus, HSTATUS_HU) ? PRV_U : PRV_S);
-WRITE_RD(MMU.guest_load_int8(RS1));
-```
-
-`MMU.guest_load_int8`というのが使用されている。`mmu.h`には以下のように`#define`で定義がなされていた。
-
-```cpp
-  // load value from guest memory at aligned address; zero extend to register width
-  load_func(uint8, guest_load, RISCV_XLATE_VIRT)
-  load_func(uint16, guest_load, RISCV_XLATE_VIRT)
-  load_func(uint32, guest_load, RISCV_XLATE_VIRT)
-  load_func(uint64, guest_load, RISCV_XLATE_VIRT)
-  load_func(uint16, guest_load_x, RISCV_XLATE_VIRT|RISCV_XLATE_VIRT_MXR)
-  load_func(uint32, guest_load_x, RISCV_XLATE_VIRT|RISCV_XLATE_VIRT_MXR)
-```
-
-`load_func()`の実体は`define`であるが、そこでは`RISCV_XLATE_VIRT`で宣言されているフラグでテーブルウォークの制御がなされているようだった。
-
-```cpp
-  #define load_func(type, prefix, xlate_flags) \
-    inline type##_t prefix##_##type(reg_t addr, bool require_alignment = false) { \
-      if (xlate_flags) \
-        flush_tlb(); \
-      if (unlikely(addr & (sizeof(type##_t)-1))) { \
- ...
-      target_endian<type##_t> res; \
-      load_slow_path(addr, sizeof(type##_t), (uint8_t*)&res, (xlate_flags)); \
-      if (proc) READ_MEM(addr, size); \
-
-```
-
-`load_slow_path()`は以下のような実装になっていた。
-
-```cpp
-void mmu_t::load_slow_path(reg_t addr, reg_t len, uint8_t* bytes, uint32_t xlate_flags)
-{
-  reg_t paddr = translate(addr, len, LOAD, xlate_flags);
-
-```
-
-`translate()`は`xlate_flags`で挙動を変えるようだ。
-
-```cpp
-reg_t mmu_t::translate(reg_t addr, reg_t len, access_type type, uint32_t xlate_flags)
-{
-  if (!proc)
-    return addr;
-
-  bool mxr = get_field(proc->state.mstatus, MSTATUS_MXR);
-  bool virt = (proc) ? proc->state.v : false;
-  reg_t mode = proc->state.prv;
-  if (type != FETCH) {
-    if (!proc->state.debug_mode && get_field(proc->state.mstatus, MSTATUS_MPRV)) {
-      mode = get_field(proc->state.mstatus, MSTATUS_MPP);
-      if (get_field(proc->state.mstatus, MSTATUS_MPV))
-        virt = true;
-    }
-    if (!proc->state.debug_mode && (xlate_flags & RISCV_XLATE_VIRT)) {
-      virt = true;
-      mode = get_field(proc->state.hstatus, HSTATUS_SPVP);
-      if (type == LOAD && (xlate_flags & RISCV_XLATE_VIRT_MXR)) {
-        mxr = true;
-      }
-    }
-  }
-
-  reg_t paddr = walk(addr, type, mode, virt, mxr) | (addr & (PGSIZE-1));
-  if (!pmp_ok(paddr, len, type, mode))
-    throw_access_exception(virt, addr, type);
-  return paddr;
-}
-```
-
----
 
 ### 5.3.2 ハイパーバイザーメモリ管理フェンス命令
 
@@ -130,8 +47,3 @@ reg_t mmu_t::translate(reg_t addr, reg_t len, access_type type, uint32_t xlate_f
 > `HFENCE.GVMA`のよりシンプルな実装では、rs1 のゲスト物理アドレスと rs2 の VMID 値を無視して、常にすべての仮想マシンのゲスト物理メモリ管理のためのグローバルフェンス、またはすべてのメモリ管理データ構造のためのグローバルフェンスを実行することができる。
 
 `HFENCE.VVMA`と`HFENCE.GVMA`はV=1の時に実行すると仮想命令例外を発生するが、Uモードで実行すると不正命令例外を発生する。`HFENCE.GVMA`を`mstatus.TVM=1`のHSモードで実行すると同様に不正命令例外が発生する。
-
-
-
-
-

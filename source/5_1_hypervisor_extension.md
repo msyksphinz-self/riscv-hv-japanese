@@ -2,22 +2,6 @@
 
 本章では、RISC-Vのハイパーバイザ拡張について説明する。ハイパーバイザ拡張は、Type-1、Type-2ハイパーバイザ上にゲストのオペレーティングシステムの効率的なホスティングをサポートするためのスーパバイザレベルアーキテクチャを仮想化するためのものである。ハイパーバイザー拡張は、スーパーバイザーモードを**ハイパーバイザー拡張スーパーバイザーモード**(hypervisor-extended supervisor mode : HSモード もしくは単純に**ハイパーバイザーモード**)に変更する。このモードはハイパーバイザーもしくはホスティング可能なオペレーティングシステムが動作するためのモードである。ハイパーバイザー拡張はもう一別のアドレス変換モードを追加する、これは**ゲスト物理アドレス (Guest Physical Address)**から**スーパーバイザー物理アドレス(supervisor physical address)**に変換するものであり、これによりゲストオペレーティングシステムのメモリおよびメモリマップドなI/Oサブシステムを仮想化する。HSモードはSモードと同様に動作するが、Sモード以外の命令とCSRレジスタが使用可能であり、これによりアドレス変換の新しいステージを制御しゲストOSを仮想的なSモード(VSモード)で動作することをサポートする。通常のSモードのオペレーティングシステムはHSモードとVSモードのゲストを変更することなく動作することができる。
 
-<!-- https://ja.wikipedia.org/wiki/ハイパーバイザ#Type_1（「ネイティブ」または「ベアメタル」）ハイパーバイザ
-
-> ハイパーバイザがハードウェア上で直接動作し、全てのOS（ゲストOS）はそのハイパーバイザ上で動作する方式を指す。狭義の「ハイパーバイザ」はこちらのみを指す。
-
-https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Diagramme_ArchiHyperviseur.png/300px-Diagramme_ArchiHyperviseur.png
-
-- Type-2のハイパーバイザとは
-
-https://ja.wikipedia.org/wiki/ハイパーバイザ#Type_2（「ホスト」）ハイパーバイザ
-
-> ハードウェア上でまず別のOSが稼働し（このOSを**ホストOS**と呼ぶ）、その上でハイパーバイザが（ホストOSのアプリケーションとして）稼働し、更にはハイパーバイザの上で更に別のOS（このOSを**ゲストOS**と呼ぶ）を稼働させる方法である。狭義においては、Type 2はハイパーバイザには含まれない。
-
-https://upload.wikimedia.org/wikipedia/commons/5/5c/Diagramme_ArchiEmulateur.png
-
--->
-
 HSモードでは、OSもしくはハイパーバイザは、OSが通常通りSモードで動作しているのと同様なSBIを使ってマシンとやり取りを行う。HSモードのハイパーバイザーは、VSモードのゲストのためにSBIを実装することが期待されている。
 
 ハイパーバイザー拡張は、`misa`CSRの7ビット目、つまりアルファベットのHに相当するビットを設定することによって有効化される。ハイパーバイザーを実装したRISC-VのHARTは`misa[7]`をハードワイヤにすることは推奨されておらず、この拡張を無効化することも可能にしておくべきである。
@@ -30,17 +14,6 @@ HSモードでは、OSもしくはハイパーバイザは、OSが通常通りS�
 "V"で表現される現在の**仮想化モード(virtualization mode)**はHARTがゲスト上で実行しているかどうかを示すものである。V=1であれば、HARTは仮想的なSモード(VSモード)もしくはVSモードで動作しているオペレーティングシステム上で仮想的なUモード(VUモード)として動作していることを意味する。V=0であれば、HARTはMモード、HSモード、もしくはHSモードで動作しているOS上のUモードで動作している。仮想化モードは、同様に2ステージアドレス変換モードが有効(V=1)か無効(V=0)であるかも示している。表5.1はRISC-V HARTのハイパーバイザー拡張における動作モードの一覧である。
 
 ![1540735375336](hypervisor_51.png)
-
----
-
-メモ：
-
-仮想モード(Virtualization Mode, Vビット)により、現在のHartがゲストとして実行されているのかどうかを判定する。
-
-- V=1 : 仮想Sモード(VSモード), 仮想Uモード(VUモード)で動作している。これはゲストOS上で動作していることを意味する。また、V=1の場合は2レベルアドレス変換が有効である。
-- V=0 : Mモード, HSモード, HSモード下のOS上で動作しているUモードのどれかである。
-
----
 
 ## 5.2 ハイパーバイザCSR
 
@@ -345,45 +318,6 @@ V=0の場合、`vsstatus`はマシンの動作に直接影響を与えないが�
 
 `hideleg`のビット2が0の場合、`vsip.SSIP`と`vsie.SSIE`はゼロに固定されている。そうでなければ、`vsip.SSIP`と`vsie.SSIE`は`hip.VSSIP`と`hie.VSSIE`のエイリアスである。
 
----
-
-メモ: Spikeにおける`vsip`と`vsie`の挙動：`mie`と`mip`を参照しているなあ。`hie`と`hip`も`mie`と`mip`を参照している。
-
-```cpp
-void processor_t::set_csr(int which, reg_t val)
-{
-/* ... */
-    case CSR_VSIE: {
-      reg_t mask = state.hideleg & MIP_VS_MASK;
-      state.mie = (state.mie & ~mask) | ((val << 1) & mask);
-      break;
-    }
-/* ... */
-    case CSR_VSIP: {
-      reg_t mask = state.hideleg & MIP_VSSIP;
-      state.mip = (state.mip & ~mask) | ((val << 1) & mask);
-      break;
-    }
-    case CSR_HIE: {
-      reg_t mask = MIP_HS_MASK;
-      state.mie = (state.mie & ~mask) | (val & mask);
-      break;
-    }
-    case CSR_HIP: {
-      reg_t mask = MIP_VSSIP;
-      state.mip = (state.mip & ~mask) | (val & mask);
-      break;
-    }
-}
-reg_t processor_t::get_csr(int which, insn_t insn, bool write, bool peek)
-{
-    case CSR_VSIE: ret((state.mie & state.hideleg & MIP_VS_MASK) >> 1);
-    /* ... */
-    case CSR_VSIP: ret((state.mip & state.hideleg & MIP_VS_MASK) >> 1);
-    case CSR_HIE: ret(state.mie & MIP_HS_MASK);
-    case CSR_HIP: ret(state.mip & MIP_HS_MASK);
-}
-```
 
 ### 5.2.12 仮想スーパーバイザートラップベクタベースアドレスレジスタ (`vstvec`)
 
@@ -391,39 +325,6 @@ reg_t processor_t::get_csr(int which, insn_t insn, bool write, bool peek)
 
 ![図5.26:仮想スーパーバイザートラップベクタベースアドレスレジスタ](vstvec.PNG)
 
----
-
-メモ：Spikeにおける`vstvec`の動作
-
-```cpp
-void processor_t::set_csr(int which, reg_t val)
-{
-...
-    case CSR_STVEC:	// STVECへの参照時：V=1の場合はvstvecに書き込まれる
-      if (state.v)
-        state.vstvec = val & ~(reg_t)2;
-      else
-        state.stvec = val & ~(reg_t)2;
-      break;
-...
-    case CSR_VSTVEC: state.vstvec = val & ~(reg_t)2; break;
-...
-}
-
-void processor_t::get_csr()
-{
-...
-    case CSR_STVEC: {	// STVECの読み出し時、V=1の場合はvstvecが読みだされる。
-      if (state.v) {
-        ret(state.vstvec);
-      } else {
-        ret(state.stvec);
-      }
-    }
-    case CSR_VSTVEC: ret(state.vstvec);
-}
-
-```
 
 ---
 
